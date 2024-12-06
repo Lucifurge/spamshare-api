@@ -1,26 +1,47 @@
 // Importing required dependencies
 const express = require('express');
+const puppeteer = require('puppeteer');
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Simulate sharing functionality (for testing purposes)
-function sharePost(cookie, url, amount, interval) {
-    return new Promise((resolve, reject) => {
-        let shares = 0;
+// Simulate sharing functionality with Puppeteer
+async function sharePost(cookie, url, amount, interval) {
+    const browser = await puppeteer.launch({ headless: false });  // Set headless to false to see the browser
+    const page = await browser.newPage();
 
-        const shareInterval = setInterval(() => {
-            shares++;
-            console.log(`Sharing post ${url}... Share ${shares}`);
+    // Navigate to Facebook login page
+    await page.goto('https://www.facebook.com/');
 
-            if (shares >= amount) {
-                clearInterval(shareInterval);
-                resolve(`Successfully shared ${amount} times!`);
-            }
-        }, interval * 1000); // Interval in milliseconds
-    });
+    // Log in (you should provide a valid cookie for authentication)
+    await page.setCookie({ name: 'cookie', value: cookie, domain: 'facebook.com' });
+
+    // Wait for Facebook to load the homepage
+    await page.waitForSelector('div[aria-label="Create a post"]');
+
+    // Navigate to the post URL
+    await page.goto(url);
+    
+    // Share the post repeatedly
+    for (let i = 0; i < amount; i++) {
+        console.log(`Sharing post ${url}... Share ${i + 1}`);
+
+        // Wait for the share button and click it
+        await page.waitForSelector('button[data-testid="share_button"]');
+        await page.click('button[data-testid="share_button"]');
+
+        // Wait for share options to load and click "Share" (can be customized)
+        await page.waitForSelector('div[aria-label="Share"]');
+        await page.click('div[aria-label="Share"]');
+        
+        // Wait for interval before the next share
+        await page.waitForTimeout(interval * 1000);
+    }
+
+    await browser.close();
+    return `Successfully shared ${amount} times!`;
 }
 
 // API endpoint to handle the sharing requests
