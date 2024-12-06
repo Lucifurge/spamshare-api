@@ -1,17 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
 const path = require('path');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
 const app = express();
 
-// Enable CORS for both production domain and localhost
+// Enable CORS for specific origins
 const corsOptions = {
-    origin: ['https://reyzhaven.com', 'http://localhost:3000'],  // Allow both your production and local domain
+    origin: ['https://reyzhaven.com', 'http://localhost:3000'], // Adjust origins as needed
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type,Authorization',
 };
-
-// Apply CORS middleware
 app.use(cors(corsOptions));
 
 // Middleware to serve static files (HTML, CSS, JS)
@@ -22,34 +23,49 @@ app.use(express.json());
 
 // Simulate sharing functionality with Puppeteer
 async function sharePost(cookie, url, amount, interval) {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 
-    // Set the cookie for authentication
-    await page.setCookie({ name: 'cookie', value: cookie, domain: 'facebook.com' });
+    try {
+        const page = await browser.newPage();
 
-    // Navigate to the Facebook post URL
-    await page.goto(url);
+        // Set the cookie for authentication
+        await page.setCookie({
+            name: 'cookie',
+            value: cookie,
+            domain: '.facebook.com',
+        });
 
-    // Wait for the share button to be available
-    await page.waitForSelector('button[data-testid="share_button"]');
-    
-    // Simulate clicking the share button multiple times
-    for (let i = 0; i < amount; i++) {
-        console.log(`Sharing post... Share ${i + 1}`);
+        // Navigate to the Facebook post URL
+        await page.goto(url, { waitUntil: 'networkidle2' });
 
-        // Click on the share button
-        await page.click('button[data-testid="share_button"]');
-        
-        // Wait for the share modal to appear
-        await page.waitForSelector('div[aria-label="Share"]');
-        await page.click('div[aria-label="Share"]');
+        // Wait for the share button
+        const shareButtonSelector = 'button[data-testid="share_button"]';
+        await page.waitForSelector(shareButtonSelector);
 
-        // Wait for the interval before the next share
-        await page.waitForTimeout(interval * 1000);
+        for (let i = 0; i < amount; i++) {
+            console.log(`Sharing post... Share ${i + 1}`);
+
+            // Click the share button
+            await page.click(shareButtonSelector);
+
+            // Wait for the share modal to appear
+            const shareModalSelector = 'div[aria-label="Share"]';
+            await page.waitForSelector(shareModalSelector);
+            await page.click(shareModalSelector);
+
+            // Wait for the interval before the next share
+            await page.waitForTimeout(interval * 1000);
+        }
+    } catch (error) {
+        console.error('Error during Puppeteer operation:', error);
+        throw new Error('Puppeteer encountered an issue while sharing the post.');
+    } finally {
+        await browser.close();
     }
 
-    await browser.close();
     return `Successfully shared ${amount} times!`;
 }
 
@@ -57,20 +73,19 @@ async function sharePost(cookie, url, amount, interval) {
 app.post('/share', async (req, res) => {
     const { cookie, url, amount, interval } = req.body;
 
+    // Validate inputs
     if (!cookie || !url || !amount || !interval) {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
-    // Validate amount and interval
     if (amount <= 0 || amount > 200000) {
-        return res.status(400).json({ error: 'Amount should be greater than zero and less than or equal to 200,000.' });
+        return res.status(400).json({ error: 'Amount must be between 1 and 200,000.' });
     }
 
-    if (interval <= 0) {
-        return res.status(400).json({ error: 'Interval should be greater than zero.' });
+    if (interval < 1 || interval > 60) {
+        return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
     }
 
-    // Validate the URL
     const fbPostRegex = /^https:\/\/www\.facebook\.com\/.*\/posts\/\d+$/;
     if (!fbPostRegex.test(url)) {
         return res.status(400).json({ error: 'Invalid Facebook post URL.' });
@@ -80,7 +95,8 @@ app.post('/share', async (req, res) => {
         const result = await sharePost(cookie, url, amount, interval);
         res.status(200).json({ message: result });
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while sharing the post.' });
+        console.error('Error in /share endpoint:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -90,6 +106,7 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
