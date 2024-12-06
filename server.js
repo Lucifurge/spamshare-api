@@ -9,7 +9,7 @@ const app = express();
 
 // Enable CORS for specific origins
 const corsOptions = {
-    origin: ['https://reyzhaven.com', 'http://localhost:3000'], // Adjust origins as needed
+    origin: [process.env.ALLOWED_ORIGIN || 'https://reyzhaven.com', 'http://localhost:3000'], // Use environment variable for production
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type,Authorization',
 };
@@ -23,12 +23,18 @@ app.use(express.json());
 
 // Simulate sharing functionality with Puppeteer
 async function sharePost(cookie, url, amount, interval) {
-    const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-
+    let browser;
     try {
+        browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',  // Prevents issues on cloud environments
+                '--remote-debugging-port=9222',
+            ],
+        });
+
         const page = await browser.newPage();
 
         // Set the cookie for authentication
@@ -59,14 +65,16 @@ async function sharePost(cookie, url, amount, interval) {
             // Wait for the interval before the next share
             await page.waitForTimeout(interval * 1000);
         }
+
+        return `Successfully shared ${amount} times!`;
     } catch (error) {
         console.error('Error during Puppeteer operation:', error);
         throw new Error('Puppeteer encountered an issue while sharing the post.');
     } finally {
-        await browser.close();
+        if (browser) {
+            await browser.close();
+        }
     }
-
-    return `Successfully shared ${amount} times!`;
 }
 
 // API endpoint for sharing posts
@@ -106,7 +114,7 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;  // Use environment variable for production port
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
