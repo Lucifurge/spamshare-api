@@ -14,6 +14,7 @@ function sharePost(cookie, url, amount, interval) {
         const shareInterval = setInterval(() => {
             shares++;
             console.log(`Sharing post ${url}... Share ${shares}`);
+
             if (shares >= amount) {
                 clearInterval(shareInterval);
                 resolve(`Successfully shared ${amount} times!`);
@@ -32,8 +33,18 @@ app.post('/share', async (req, res) => {
     }
 
     // Validate amount and interval
-    if (amount <= 0 || interval <= 0) {
-        return res.status(400).json({ error: 'Amount and interval should be greater than zero.' });
+    if (amount <= 0 || amount > 200000) {
+        return res.status(400).json({ error: 'Amount should be greater than zero and less than or equal to 200,000.' });
+    }
+
+    if (interval <= 0) {
+        return res.status(400).json({ error: 'Interval should be greater than zero.' });
+    }
+
+    // Validate the URL (check if it's a valid Facebook post URL)
+    const fbPostRegex = /^https:\/\/www\.facebook\.com\/.*\/posts\/\d+$/;
+    if (!fbPostRegex.test(url)) {
+        return res.status(400).json({ error: 'Invalid Facebook post URL. Please provide a valid URL.' });
     }
 
     try {
