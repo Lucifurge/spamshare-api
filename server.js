@@ -1,42 +1,51 @@
-// Importing required dependencies
 const express = require('express');
+const cors = require('cors');
 const puppeteer = require('puppeteer');
+const path = require('path');
 const app = express();
-const port = process.env.PORT || 3000;
+
+// Enable CORS for both production domain and localhost
+const corsOptions = {
+    origin: ['https://reyzhaven.com', 'http://localhost:3000'],  // Allow both your production and local domain
+    methods: 'GET,POST',
+    allowedHeaders: 'Content-Type,Authorization',
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// Middleware to serve static files (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
 // Simulate sharing functionality with Puppeteer
 async function sharePost(cookie, url, amount, interval) {
-    const browser = await puppeteer.launch({ headless: false });  // Set headless to false to see the browser
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
 
-    // Navigate to Facebook login page
-    await page.goto('https://www.facebook.com/');
-
-    // Log in (you should provide a valid cookie for authentication)
+    // Set the cookie for authentication
     await page.setCookie({ name: 'cookie', value: cookie, domain: 'facebook.com' });
 
-    // Wait for Facebook to load the homepage
-    await page.waitForSelector('div[aria-label="Create a post"]');
-
-    // Navigate to the post URL
+    // Navigate to the Facebook post URL
     await page.goto(url);
+
+    // Wait for the share button to be available
+    await page.waitForSelector('button[data-testid="share_button"]');
     
-    // Share the post repeatedly
+    // Simulate clicking the share button multiple times
     for (let i = 0; i < amount; i++) {
-        console.log(`Sharing post ${url}... Share ${i + 1}`);
+        console.log(`Sharing post... Share ${i + 1}`);
 
-        // Wait for the share button and click it
-        await page.waitForSelector('button[data-testid="share_button"]');
+        // Click on the share button
         await page.click('button[data-testid="share_button"]');
-
-        // Wait for share options to load and click "Share" (can be customized)
+        
+        // Wait for the share modal to appear
         await page.waitForSelector('div[aria-label="Share"]');
         await page.click('div[aria-label="Share"]');
-        
-        // Wait for interval before the next share
+
+        // Wait for the interval before the next share
         await page.waitForTimeout(interval * 1000);
     }
 
@@ -44,13 +53,12 @@ async function sharePost(cookie, url, amount, interval) {
     return `Successfully shared ${amount} times!`;
 }
 
-// API endpoint to handle the sharing requests
+// API endpoint for sharing posts
 app.post('/share', async (req, res) => {
     const { cookie, url, amount, interval } = req.body;
 
-    // Validate the input
     if (!cookie || !url || !amount || !interval) {
-        return res.status(400).json({ error: 'Please provide all required fields (cookie, url, amount, interval).' });
+        return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
     // Validate amount and interval
@@ -62,10 +70,10 @@ app.post('/share', async (req, res) => {
         return res.status(400).json({ error: 'Interval should be greater than zero.' });
     }
 
-    // Validate the URL (check if it's a valid Facebook post URL)
+    // Validate the URL
     const fbPostRegex = /^https:\/\/www\.facebook\.com\/.*\/posts\/\d+$/;
     if (!fbPostRegex.test(url)) {
-        return res.status(400).json({ error: 'Invalid Facebook post URL. Please provide a valid URL.' });
+        return res.status(400).json({ error: 'Invalid Facebook post URL.' });
     }
 
     try {
@@ -76,12 +84,12 @@ app.post('/share', async (req, res) => {
     }
 });
 
-// Default route to check if the server is running
+// Default route to check if the server is working
 app.get('/', (req, res) => {
-    res.send('SpamShare API is working!');
+    res.send('Server is running');
 });
 
 // Start the server
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+app.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
 });
