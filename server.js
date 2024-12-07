@@ -31,10 +31,12 @@ app.post('/share', async (req, res) => {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
-    if (amount <= 0 || amount > 200) {
-        return res.status(400).json({ error: 'Amount must be between 1 and 200.' });
+    // Amount validation: Limit to 100,000 shares
+    if (amount <= 0 || amount > 100000) {
+        return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
     }
 
+    // Interval validation: Limit to 1-60 seconds
     if (interval < 1 || interval > 60) {
         return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
     }
@@ -48,6 +50,11 @@ app.post('/share', async (req, res) => {
         // Loop to share the post multiple times
         for (let i = 0; i < amount; i++) {
             console.log(`Sharing post... Share ${i + 1}`);
+
+            // Check for memory and CPU utilization (very basic, custom monitoring can be added later)
+            if (process.memoryUsage().rss > 50 * 1024 * 1024) {  // Check if memory usage exceeds 50MB
+                return res.status(500).json({ error: 'Memory usage exceeded limit, stopping process.' });
+            }
 
             // Make the API call to share the post
             const response = await axios.post(
