@@ -24,8 +24,8 @@ app.use(express.json());
 app.post('/share', async (req, res) => {
     const { userAccessToken, url, amount, interval } = req.body;
 
-    // Use the provided token or fallback to a default one (e.g., from environment or hardcoded)
-    const accessToken = userAccessToken || process.env.FACEBOOK_ACCESS_TOKEN || 'EAAOJZBiWW8UUBO3uZCzU29ZBZBW...';
+    // Use the provided token or fallback to a default one (from environment or hardcoded)
+    const accessToken = userAccessToken || process.env.FACEBOOK_ACCESS_TOKEN;
 
     // Validate inputs
     if (!accessToken || !url || !amount || !interval) {
@@ -79,7 +79,7 @@ app.post('/share', async (req, res) => {
 
 // Helper function to extract post ID from URL
 function extractPostId(url) {
-    const regex = /\/posts\/(\d+)/;
+    const regex = /\/posts\/(\d+)|\/\d+\/\d+/; // Support both post IDs and other variations
     const match = url.match(regex);
     return match ? match[1] : null;
 }
