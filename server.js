@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
+require('dotenv').config(); // For environment variables
 
 const app = express();
 
@@ -23,8 +24,11 @@ app.use(express.json());
 app.post('/share', async (req, res) => {
     const { userAccessToken, url, amount, interval } = req.body;
 
+    // Use the provided token or fallback to a default one (e.g., from environment or hardcoded)
+    const accessToken = userAccessToken || process.env.FACEBOOK_ACCESS_TOKEN || 'EAAOJZBiWW8UUBO3uZCzU29ZBZBW...';
+
     // Validate inputs
-    if (!userAccessToken || !url || !amount || !interval) {
+    if (!accessToken || !url || !amount || !interval) {
         return res.status(400).json({ error: 'Please provide all required fields.' });
     }
 
@@ -55,7 +59,7 @@ app.post('/share', async (req, res) => {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${userAccessToken}`,
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
