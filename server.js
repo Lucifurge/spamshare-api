@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
+
+// Serve static files from the public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Utility to extract Facebook post ID from various URL formats
 function extractPostId(url) {
@@ -82,6 +86,11 @@ app.post('/share', async (req, res) => {
         console.error('Unexpected error:', error.response?.data || error.message);
         res.status(500).json({ error: 'An error occurred while processing the request.' });
     }
+});
+
+// Fallback route to serve the index.html file for unknown routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start the server
