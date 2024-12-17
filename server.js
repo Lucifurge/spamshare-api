@@ -28,23 +28,23 @@ app.post('/share', async (req, res) => {
     return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
   }
 
-  const cookieString = cookies.join('; '); // Format cookies for the HTTP request header
+  const cookieString = cookies.map(cookie => `${cookie.key}=${cookie.value}`).join('; '); // Format cookies properly
 
   try {
     for (let i = 0; i < amount; i++) {
       console.log(`Sharing post #${i + 1}`);
       try {
         const response = await axios.get(
-          `https://www.facebook.com/sharer/sharer.php`, // Facebook share URL
+          `https://www.facebook.com/sharer/sharer.php`,
           {
-            params: { u: url }, // The URL to share
+            params: { u: encodeURIComponent(url) }, // Properly encode the URL
             headers: {
               'Cookie': cookieString, // Pass user session cookies
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36', // Mimic a browser
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
               'Accept-Language': 'en-US,en;q=0.5',
+              'Referer': 'https://www.facebook.com/', // Ensure proper referer header
               'Connection': 'keep-alive',
-              'Referer': 'https://www.facebook.com/',
             },
           }
         );
@@ -60,7 +60,12 @@ app.post('/share', async (req, res) => {
           await new Promise(resolve => setTimeout(resolve, interval * 1000));
         }
       } catch (error) {
-        console.error(`Share #${i + 1} failed:`, error.response?.status || error.message);
+        // Log more detailed error information
+        console.error(
+          `Share #${i + 1} failed:`,
+          error.response?.status || 'No status',
+          error.response?.data || error.message
+        );
       }
     }
 
