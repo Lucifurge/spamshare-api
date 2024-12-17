@@ -49,7 +49,7 @@
         <textarea id="cookies" rows="5" placeholder='Paste Facebook cookies here'></textarea>
 
         <label for="postUrl">Post URL:</label>
-        <input type="url" id="postUrl" placeholder="https://www.facebook.com/share/p/FP5CkSC9VQPdCgBq/" required>
+        <input type="url" id="postUrl" placeholder="https://www.facebook.com/{username}/posts/{postId}" required>
 
         <label for="numShares">Number of Shares:</label>
         <input type="number" id="numShares" value="1" required>
@@ -83,21 +83,21 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        cookies: cookies.split('\n'),  // Split cookies by newline to send as an array
-                        url,
-                        amount,
-                        interval
-                    })
+                        cookies: cookies.split('\n'),
+                        url: url,
+                        amount: parseInt(amount),
+                        interval: parseInt(interval),
+                    }),
                 });
 
                 const data = await response.json();
+
                 if (response.ok) {
-                    alert(`Successfully shared the post ${amount} times!`);
+                    alert(data.message);
                 } else {
-                    document.getElementById('errorMessage').textContent = data.error || 'An error occurred.';
+                    document.getElementById('errorMessage').textContent = data.error;
                 }
             } catch (error) {
-                console.error('Error:', error);
                 document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
             }
         });
