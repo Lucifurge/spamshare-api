@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const path = require('path');  // Required to resolve paths
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
@@ -34,32 +34,39 @@ app.post('/share', async (req, res) => {
     for (let i = 0; i < amount; i++) {
       console.log(`Sharing post #${i + 1}`);
       try {
-        const response = await axios.post(
+        const response = await axios.get(
           `https://www.facebook.com/sharer/sharer.php`, // Facebook share URL
-          new URLSearchParams({
-            u: url, // The URL to share
-          }),
           {
+            params: { u: url }, // The URL to share
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
               'Cookie': cookieString, // Pass user session cookies
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36', // Mimic a browser
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Connection': 'keep-alive',
+              'Referer': 'https://www.facebook.com/',
             },
           }
         );
 
-        console.log(`Share #${i + 1} succeeded:`, response.status);
+        if (response.status === 200) {
+          console.log(`Share #${i + 1} succeeded`);
+        } else {
+          console.error(`Share #${i + 1} returned unexpected status:`, response.status);
+        }
+
         if (i < amount - 1) {
           // Wait for the specified interval before the next share
           await new Promise(resolve => setTimeout(resolve, interval * 1000));
         }
       } catch (error) {
-        console.error(`Share #${i + 1} failed:`, error.response?.data || error.message);
+        console.error(`Share #${i + 1} failed:`, error.response?.status || error.message);
       }
     }
 
-    res.status(200).json({ message: `Successfully shared the content ${amount} times.` });
+    res.status(200).json({ message: `Successfully processed ${amount} share attempts.` });
   } catch (error) {
-    console.error('Unexpected error:', error.response?.data || error.message);
+    console.error('Unexpected error:', error.message);
     res.status(500).json({ error: 'An error occurred while processing the request.' });
   }
 });
