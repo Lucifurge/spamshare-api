@@ -1,15 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path');  // Required to resolve paths
 
 const app = express();
 app.use(bodyParser.json());
 
-// Enable CORS for frontend to access backend
-const cors = require('cors');
-app.use(cors());
+// Serve static files from the 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Share endpoint
+// Your share route
 app.post('/share', async (req, res) => {
     const { cookies, url, amount, interval } = req.body;
 
@@ -30,12 +30,6 @@ app.post('/share', async (req, res) => {
 
     const cookieString = cookies.join('; '); // Format cookies for the HTTP request header
 
-    // Simulate headers for the request
-    const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': cookieString,
-    };
-
     try {
         for (let i = 0; i < amount; i++) {
             console.log(`Sharing post #${i + 1}`);
@@ -45,14 +39,18 @@ app.post('/share', async (req, res) => {
                     new URLSearchParams({
                         u: url, // The post URL to share
                     }),
-                    { headers }
+                    {
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Cookie': cookieString, // Pass user session cookies
+                        },
+                    }
                 );
 
                 console.log(`Share #${i + 1} succeeded:`, response.status);
                 if (i < amount - 1) {
-                    // Fixed interval between each share
-                    console.log(`Waiting for ${interval} seconds before next share.`);
-                    await new Promise(resolve => setTimeout(resolve, interval * 1000)); // Fixed interval
+                    // Wait for the specified interval before the next share
+                    await new Promise(resolve => setTimeout(resolve, interval * 1000));
                 }
             } catch (error) {
                 console.error(`Share #${i + 1} failed:`, error.response?.data || error.message);
@@ -66,6 +64,6 @@ app.post('/share', async (req, res) => {
     }
 });
 
-// Start the server on a dynamic port (Render will assign the port)
+// Start the server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
