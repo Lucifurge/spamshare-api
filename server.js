@@ -37,10 +37,10 @@ app.post('/share', async (req, res) => {
     }
 
     try {
-        // Extract post ID from the URL
+        // Extract post ID from the URL (handles both post and photo URLs)
         const postId = extractPostId(url);
         if (!postId) {
-            return res.status(400).json({ error: 'Invalid Facebook post URL. Please ensure the URL is valid.' });
+            return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
         }
 
         console.log(`Preparing to share post ${postId} ${amount} times.`);
@@ -81,9 +81,9 @@ app.post('/share', async (req, res) => {
     }
 });
 
-// Utility to extract Facebook post ID from a URL
+// Utility to extract Facebook post ID from a URL (updated for both post and photo URLs)
 function extractPostId(url) {
-    const regex = /\/posts\/(\d+)|\/(\d+_\d+)/;
+    const regex = /https:\/\/www\.facebook\.com\/(?:[a-zA-Z0-9.]+)\/(?:posts\/(\d+)|photo\/\?fbid=(\d+)&set=a\.\d+)/;
     const match = url.match(regex);
     return match ? match[1] || match[2] : null;
 }
