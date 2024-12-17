@@ -1,33 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
-
-// Serve static files from the public folder
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Utility to extract Facebook post ID from various URL formats
-function extractPostId(url) {
-    const patterns = [
-        /facebook\.com\/(?:[^\/]+)\/(?:posts|photos|videos|activity)\/(\d+)/,
-        /facebook\.com\/photo\.php\?fbid=(\d+)/,
-        /facebook\.com\/(?:profile\.php\?id=|)(\d+)/,
-        /facebook\.com\/sharer\/sharer\.php\?u=([^&]+)/,
-        /facebook\.com\/([^?&\/]+)/, // Fallback pattern
-    ];
-
-    for (const pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) {
-            return decodeURIComponent(match[1]);
-        }
-    }
-
-    return null; // Return null if no pattern matches
-}
 
 // Share endpoint
 app.post('/share', async (req, res) => {
@@ -37,44 +13,40 @@ app.post('/share', async (req, res) => {
     if (!cookies || !url || !amount || !interval) {
         return res.status(400).json({ error: 'Missing required fields: cookies, url, amount, interval.' });
     }
+
+    // Ensure the share amount is between 1 and 100,000
     if (amount <= 0 || amount > 100000) {
         return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
     }
+
+    // Ensure the interval is between 1 and 60 seconds
     if (interval < 1 || interval > 60) {
         return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
     }
 
-    // Extract post ID from the provided URL
-    const postId = extractPostId(url);
-    if (!postId) {
-        return res.status(400).json({ error: 'Invalid Facebook URL. Ensure the URL is properly formatted.' });
-    }
-
-    console.log(`Preparing to share content with ID: ${postId}, ${amount} times.`);
+    const cookieString = cookies.join('; '); // Format cookies for the HTTP request header
 
     try {
         for (let i = 0; i < amount; i++) {
+            console.log(`Sharing post #${i + 1}`);
             try {
-                console.log(`Sharing post #${i + 1}`);
-
                 const response = await axios.post(
-                    `https://graph.facebook.com/v17.0/me/feed`,
-                    {
-                        message: `Check out this amazing content!`,
-                        link: url,
-                    },
+                    `https://www.facebook.com/sharer/sharer.php`,
+                    new URLSearchParams({
+                        u: url, // The post URL to share
+                    }),
                     {
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Cookie': cookies.join('; '), // Pass cookies directly
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Cookie': cookieString, // Pass user session cookies
                         },
                     }
                 );
 
-                console.log(`Share #${i + 1} succeeded:`, response.data);
-
+                console.log(`Share #${i + 1} succeeded:`, response.status);
                 if (i < amount - 1) {
-                    await new Promise(resolve => setTimeout(resolve, interval * 1000)); // Wait for the specified interval
+                    // Wait for the specified interval before the next share
+                    await new Promise(resolve => setTimeout(resolve, interval * 1000));
                 }
             } catch (error) {
                 console.error(`Share #${i + 1} failed:`, error.response?.data || error.message);
@@ -86,11 +58,6 @@ app.post('/share', async (req, res) => {
         console.error('Unexpected error:', error.response?.data || error.message);
         res.status(500).json({ error: 'An error occurred while processing the request.' });
     }
-});
-
-// Fallback route to serve the index.html file for unknown routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start the server
