@@ -1,23 +1,26 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const axios = require('axios');
+// Utility to extract Facebook post ID from various URL formats
+function extractPostId(url) {
+    const patterns = [
+        // Match post URLs
+        /facebook\.com\/(?:[^\/]+)\/(?:posts|photos|videos|activity)\/(\d+)/,
+        // Match photo URLs
+        /facebook\.com\/photo\.php\?fbid=(\d+)/,
+        // Match profile URLs
+        /facebook\.com\/(?:profile\.php\?id=|)(\d+)/,
+        // Match share URLs
+        /facebook\.com\/sharer\/sharer\.php\?u=([^&]+)/,
+    ];
 
-// Initialize the Express app
-const app = express();
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) {
+            return match[1]; // Return the extracted post/profile ID or shared content
+        }
+    }
 
-// Enable CORS to allow frontend access
-const corsOptions = {
-    methods: 'GET,POST',
-    allowedHeaders: 'Content-Type,Authorization',
-};
-app.use(cors(corsOptions));
-
-// Middleware to serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware to parse JSON requests
-app.use(express.json());
+    // If no pattern matches, return null
+    return null;
+}
 
 // Facebook API share endpoint
 app.post('/share', async (req, res) => {
@@ -40,7 +43,7 @@ app.post('/share', async (req, res) => {
         // Extract post ID from the URL
         const postId = extractPostId(url);
         if (!postId) {
-            return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
+            return res.status(400).json({ error: 'Invalid or unsupported Facebook URL. Please ensure the URL is valid.' });
         }
 
         console.log(`Preparing to share post ${postId} ${amount} times.`);
@@ -54,7 +57,7 @@ app.post('/share', async (req, res) => {
                 const response = await axios.post(
                     `https://graph.facebook.com/v17.0/me/feed`,
                     {
-                        message: `Check out this amazing post!`,
+                        message: `Check out this amazing content!`,
                         link: url,
                     },
                     {
@@ -79,22 +82,4 @@ app.post('/share', async (req, res) => {
         console.error('Unexpected error during share operation:', error.response?.data || error.message);
         res.status(500).json({ error: 'An error occurred while sharing the post.' });
     }
-});
-
-// Utility to extract Facebook post ID from various URL formats
-function extractPostId(url) {
-    const postRegex = /facebook\.com\/(?:[^\/]+)\/(?:posts?|share\/p|photos?)\/([a-zA-Z0-9_]+)/;
-    const match = url.match(postRegex);
-    return match ? match[1] : null;
-}
-
-// Default route to serve the frontend
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
 });
