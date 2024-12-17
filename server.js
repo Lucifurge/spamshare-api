@@ -6,7 +6,7 @@ const axios = require('axios');
 // Initialize the Express app
 const app = express();
 
-// Enable CORS
+// Enable CORS to allow frontend access
 const corsOptions = {
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type,Authorization',
@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Facebook share endpoint
+// Facebook API share endpoint
 app.post('/share', async (req, res) => {
     const { cookies, url, amount, interval } = req.body;
 
@@ -40,7 +40,7 @@ app.post('/share', async (req, res) => {
         // Extract post ID from the URL
         const postId = extractPostId(url);
         if (!postId) {
-            return res.status(400).json({ error: 'Invalid Facebook post URL. Please ensure the URL is valid.' });
+            return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
         }
 
         console.log(`Preparing to share post ${postId} ${amount} times.`);
@@ -52,14 +52,14 @@ app.post('/share', async (req, res) => {
 
                 // API call to share the post using cookies in the request header
                 const response = await axios.post(
-                    `https://www.facebook.com/share.php`,
+                    `https://graph.facebook.com/v17.0/me/feed`,
                     {
-                        message: 'Check out this amazing post!', // Your post message
-                        link: url, // The URL you want to share
+                        message: `Check out this amazing post!`,
+                        link: url,
                     },
                     {
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Content-Type': 'application/json',
                             'Cookie': cookies.join('; '), // Pass cookies as the Cookie header
                         },
                     }
@@ -83,35 +83,10 @@ app.post('/share', async (req, res) => {
 
 // Utility to extract Facebook post ID from various URL formats
 function extractPostId(url) {
-    // Match URL formats for Facebook posts
-    const postRegex = /facebook\.com\/(?:[^\/]+)\/posts\/([a-zA-Z0-9_]+)/; // /posts/{postId}
-    const postRegex2 = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/; // /share/p/{postId}
-    const postRegex3 = /facebook\.com\/(?:[^\/]+)\/activity\/([a-zA-Z0-9_]+)/; // /activity/{postId}
-    const postRegex4 = /facebook\.com\/([a-zA-Z0-9_]+)\/([a-zA-Z0-9_]+)/; // Single post URL like https://www.facebook.com/{postId}
-    
-    let match;
-
-    match = url.match(postRegex); // /posts/{postId}
-    if (match) {
-        return match[1];
-    }
-
-    match = url.match(postRegex2); // /share/p/{postId}
-    if (match) {
-        return match[1];
-    }
-
-    match = url.match(postRegex3); // /activity/{postId}
-    if (match) {
-        return match[1];
-    }
-
-    match = url.match(postRegex4); // Single post URL like https://www.facebook.com/{postId}
-    if (match) {
-        return match[2]; // This would capture a post ID after the username
-    }
-
-    return null; // If no valid match is found
+    // Match multiple Facebook post formats
+    const postRegex = /facebook\.com\/(?:[^\/]+)\/(?:posts?|share\/p)\/([a-zA-Z0-9_]+)/;
+    const match = url.match(postRegex);
+    return match ? match[1] : null;
 }
 
 // Default route to serve the frontend
