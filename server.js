@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Facebook API share endpoint
+// Facebook share endpoint
 app.post('/share', async (req, res) => {
     const { cookies, url, amount, interval } = req.body;
 
@@ -28,7 +28,7 @@ app.post('/share', async (req, res) => {
         return res.status(400).json({ error: 'Please provide all required fields: cookies, url, amount, and interval.' });
     }
 
-    // Validate amount and interval
+    // Limit validation for shares and interval
     if (amount <= 0 || amount > 100000) {
         return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
     }
@@ -37,10 +37,10 @@ app.post('/share', async (req, res) => {
     }
 
     try {
-        // Extract post ID from the URL (we'll just assume that it's valid and return URL)
-        const postId = url; // Using the whole URL directly for now
+        // Extract post ID from the URL (adjust if needed to match the Facebook URL pattern you provided)
+        const postId = extractPostId(url);
         if (!postId) {
-            return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
+            return res.status(400).json({ error: 'Invalid Facebook post URL. Please ensure the URL is valid.' });
         }
 
         console.log(`Preparing to share post ${postId} ${amount} times.`);
@@ -52,14 +52,14 @@ app.post('/share', async (req, res) => {
 
                 // API call to share the post using cookies in the request header
                 const response = await axios.post(
-                    `https://graph.facebook.com/v17.0/me/feed`,
+                    `https://www.facebook.com/share.php`,
                     {
-                        message: `Check out this amazing post!`,
-                        link: url,
+                        message: 'Check out this amazing post!', // Your post message
+                        link: url, // The URL you want to share
                     },
                     {
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'application/x-www-form-urlencoded',
                             'Cookie': cookies.join('; '), // Pass cookies as the Cookie header
                         },
                     }
@@ -80,6 +80,14 @@ app.post('/share', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while sharing the post.' });
     }
 });
+
+// Utility to extract Facebook post ID from various URL formats
+function extractPostId(url) {
+    // Match the /share/p/{post_id} format
+    const postRegex = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/;
+    const match = url.match(postRegex);
+    return match ? match[1] : null;
+}
 
 // Default route to serve the frontend
 app.get('*', (req, res) => {
