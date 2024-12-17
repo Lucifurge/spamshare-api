@@ -28,7 +28,7 @@ app.post('/share', async (req, res) => {
         return res.status(400).json({ error: 'Please provide all required fields: cookies, url, amount, and interval.' });
     }
 
-    // Limit validation for shares and interval
+    // Validate amount and interval
     if (amount <= 0 || amount > 100000) {
         return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
     }
@@ -37,8 +37,8 @@ app.post('/share', async (req, res) => {
     }
 
     try {
-        // Extract post ID from the URL
-        const postId = extractPostId(url);
+        // Extract post ID from the URL (we'll just assume that it's valid and return URL)
+        const postId = url; // Using the whole URL directly for now
         if (!postId) {
             return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
         }
@@ -80,14 +80,6 @@ app.post('/share', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while sharing the post.' });
     }
 });
-
-// Utility to extract Facebook post ID from various URL formats
-function extractPostId(url) {
-    // Match the /share/p/{post_id} format (this can be updated to capture more formats)
-    const postRegex = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/;
-    const match = url.match(postRegex);
-    return match ? match[1] : null;
-}
 
 // Default route to serve the frontend
 app.get('*', (req, res) => {
