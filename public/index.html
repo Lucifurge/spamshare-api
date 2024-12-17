@@ -38,7 +38,7 @@
             const data = { cookies, url, amount, interval };
 
             try {
-                const response = await fetch('https://your-render-url/share', {
+                const response = await fetch('https://spamshare-api-kfhc.onrender.com/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data),
