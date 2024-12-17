@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const path = require('path'); // Required for file path handling
 
 const app = express();
 app.use(bodyParser.json());
+
+// Serve static files (like your HTML) from the 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Share endpoint
 app.post('/share', async (req, res) => {
