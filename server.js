@@ -37,7 +37,7 @@ app.post('/share', async (req, res) => {
     }
 
     try {
-        // Extract post ID from the URL (handles both post and photo URLs)
+        // Extract post ID from the URL
         const postId = extractPostId(url);
         if (!postId) {
             return res.status(400).json({ error: 'Invalid Facebook post or photo URL. Please ensure the URL is valid.' });
@@ -81,11 +81,12 @@ app.post('/share', async (req, res) => {
     }
 });
 
-// Utility to extract Facebook post ID from a URL (updated for both post and photo URLs)
+// Utility to extract Facebook post ID from various URL formats
 function extractPostId(url) {
-    const regex = /https:\/\/www\.facebook\.com\/(?:[a-zA-Z0-9.]+)\/(?:posts\/(\d+)|photo\/\?fbid=(\d+)&set=a\.\d+)/;
-    const match = url.match(regex);
-    return match ? match[1] || match[2] : null;
+    // Match the /share/p/{post_id} format (this can be updated to capture more formats)
+    const postRegex = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/;
+    const match = url.match(postRegex);
+    return match ? match[1] : null;
 }
 
 // Default route to serve the frontend
