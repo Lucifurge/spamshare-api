@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 // Serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Your share route
+// Share endpoint
 app.post('/share', async (req, res) => {
     const { cookies, url, amount, interval } = req.body;
 
@@ -35,9 +35,12 @@ app.post('/share', async (req, res) => {
             console.log(`Sharing post #${i + 1}`);
             try {
                 const response = await axios.post(
-                    `https://www.facebook.com/sharer/sharer.php`,
+                    `https://www.facebook.com/dialog/share`,
                     new URLSearchParams({
-                        u: url, // The post URL to share
+                        app_id: '996132395610437',  // Your Facebook App ID
+                        display: 'popup',
+                        href: url,  // The post URL to share
+                        redirect_uri: url,  // The URL to redirect after sharing
                     }),
                     {
                         headers: {
