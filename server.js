@@ -8,6 +8,7 @@ const app = express();
 
 // Enable CORS
 const corsOptions = {
+    origin: '*',
     methods: 'GET,POST',
     allowedHeaders: 'Content-Type,Authorization',
 };
@@ -21,46 +22,48 @@ app.use(express.json());
 
 // Facebook API share endpoint
 app.post('/share', async (req, res) => {
-    const { url, amount, interval, cookies } = req.body;
+    const { userAccessToken, url, amount, interval } = req.body;
 
     // Validate inputs
-    if (!url || !amount || !interval || !cookies) {
-        return res.status(400).json({ error: 'Please provide all required fields: url, amount, interval, and cookies.' });
+    if (!userAccessToken || !url || typeof amount === 'undefined' || typeof interval === 'undefined') {
+        return res.status(400).json({
+            error: 'Please provide all required fields: userAccessToken, url, amount, and interval.',
+        });
     }
 
-    // Limit validation for shares and interval
-    if (amount <= 0 || amount > 100000) {
-        return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
+    // Validate amount and interval limits
+    if (amount < 1 || amount > 2000000) {
+        return res.status(400).json({ error: 'Amount must be between 1 and 2,000,000.' });
     }
     if (interval < 1 || interval > 60) {
         return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
     }
 
+    // Extract post ID from URL
+    const postId = extractPostId(url);
+    if (!postId) {
+        return res.status(400).json({
+            error: 'Invalid Facebook post URL. Ensure the URL is formatted correctly.',
+        });
+    }
+
     try {
-        // Extract post ID from the URL
-        const postId = extractPostId(url);
-        if (!postId) {
-            return res.status(400).json({ error: 'Invalid Facebook post URL. Please ensure the URL is valid.' });
-        }
+        console.log(`Starting to share post ${postId} ${amount} times with an interval of ${interval} seconds.`);
 
-        console.log(`Preparing to share post ${postId} ${amount} times.`);
-
-        // Loop to share the post the specified number of times
         for (let i = 0; i < amount; i++) {
             try {
                 console.log(`Sharing post #${i + 1}`);
 
-                // API call to share the post using cookies in the request header
+                // API call to share the post
                 const response = await axios.post(
                     `https://graph.facebook.com/v17.0/me/feed`,
                     {
-                        message: `Check out this amazing post!`,
+                        message: `Check out this amazing post!`, // Add your message here
                         link: url,
                     },
                     {
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Cookie': cookies.join('; '), // Pass cookies here
+                            Authorization: `Bearer ${userAccessToken}`,
                         },
                     }
                 );
@@ -77,7 +80,7 @@ app.post('/share', async (req, res) => {
         res.status(200).json({ message: `Successfully shared the post ${amount} times!` });
     } catch (error) {
         console.error('Unexpected error during share operation:', error.response?.data || error.message);
-        res.status(500).json({ error: 'An error occurred while sharing the post.' });
+        res.status(500).json({ error: 'An unexpected error occurred while sharing the post.' });
     }
 });
 
