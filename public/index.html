@@ -104,23 +104,25 @@
             const data = { cookies, url, amount, interval };
 
             try {
-                const response = await fetch('/share', {  // Using the relative URL since both frontend and backend are on the same domain
+                const response = await fetch('/share', {  // Relative path for backend request
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data),
                 });
 
                 const result = await response.json();
+                const messageElement = document.getElementById('responseMessage');
                 if (response.ok) {
-                    document.getElementById('responseMessage').textContent = result.message;
-                    document.getElementById('responseMessage').classList.add('success');
+                    messageElement.textContent = result.message;
+                    messageElement.className = 'success';
                 } else {
-                    document.getElementById('responseMessage').textContent = result.error;
-                    document.getElementById('responseMessage').classList.add('error');
+                    messageElement.textContent = result.error;
+                    messageElement.className = 'error';
                 }
             } catch (error) {
-                document.getElementById('responseMessage').textContent = 'Error: ' + error.message;
-                document.getElementById('responseMessage').classList.add('error');
+                const messageElement = document.getElementById('responseMessage');
+                messageElement.textContent = 'Error: ' + error.message;
+                messageElement.className = 'error';
             }
         });
     </script>
