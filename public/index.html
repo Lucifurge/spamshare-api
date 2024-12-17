@@ -136,104 +136,103 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
     <script>
-      const API = 'https://spamshare-api-kfhc.onrender.com';
+        const API = 'https://spamshare-api-kfhc.onrender.com';
 
-async function shareWithFallback({ cookie, url, amount, interval }) {
-    console.log("Request data being sent:", { cookie, url, amount, interval });
-    try {
-        const response = await fetch(`${API}/share`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cookie, url, amount, interval }),
-        });
+        async function shareWithFallback({ cookie, url, amount, interval }) {
+            console.log("Request data being sent:", { cookie, url, amount, interval });
+            try {
+                const response = await fetch(`${API}/share`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookie, url, amount, interval }),
+                });
 
-        if (!response.ok) {
-            const errorMessage = await response.text();
-            console.error("API Error: ", errorMessage);
-            throw new Error(`Failed to share: ${errorMessage}`);
+                if (!response.ok) {
+                    const errorMessage = await response.text();
+                    console.error("API Error: ", errorMessage);
+                    throw new Error(`Failed to share: ${errorMessage}`);
+                }
+
+                const data = await response.json();
+                console.log("Share success:", data); // Log success response
+                return data;
+            } catch (error) {
+                console.error("Error in shareWithFallback:", error);
+                throw error;
+            }
         }
 
-        const data = await response.json();
-        console.log("Share success:", data); // Log success response
-        return data;
-    } catch (error) {
-        console.error("Error in shareWithFallback:", error);
-        throw error;
-    }
-}
+        async function performSharing(cookie, url, amount, interval, sessionId) {
+            const progressBar = document.getElementById(`session-${sessionId}-progress`);
+            const countElement = document.getElementById(`session-${sessionId}-count`);
 
-async function performSharing(cookie, url, amount, interval, sessionId) {
-    const progressBar = document.getElementById(`session-${sessionId}-progress`);
-    const countElement = document.getElementById(`session-${sessionId}-count`);
+            console.log("Sending share request with the following data:", {
+                cookie,
+                url,
+                amount,
+                interval
+            });
 
-    console.log("Sending share request with the following data:", {
-        cookie,
-        url,
-        amount,
-        interval
-    });
+            for (let i = 0; i < amount; i++) {
+                try {
+                    await shareWithFallback({ cookie, url, amount, interval });
+                    const progress = ((i + 1) / amount) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    countElement.textContent = i + 1;
 
-    for (let i = 0; i < amount; i++) {
-        try {
-            await shareWithFallback({ cookie, url, amount, interval });
-            const progress = ((i + 1) / amount) * 100;
-            progressBar.style.width = `${progress}%`;
-            countElement.textContent = i + 1;
+                    await new Promise(resolve => setTimeout(resolve, interval * 1000));
+                } catch (error) {
+                    console.warn(`Error during share ${i + 1}:`, error.message);
+                    progressBar.classList.add('bg-danger');
+                    break; // Stop if error occurs
+                }
+            }
 
-            await new Promise(resolve => setTimeout(resolve, interval * 1000));
-        } catch (error) {
-            console.warn(`Error during share ${i + 1}:`, error.message);
-            progressBar.classList.add('bg-danger');
-            break; // Stop if error occurs
+            alert("Session complete!");
+            document.getElementById("startSessionBtn").disabled = false;
+            document.getElementById("loadingSpinner").style.display = "none";
         }
-    }
 
-    alert("Session complete!");
-    document.getElementById("startSessionBtn").disabled = false;
-    document.getElementById("loadingSpinner").style.display = "none";
-}
+        function startNewSession() {
+            const cookie = document.getElementById("cookie").value;
+            const url = document.getElementById("url").value;
+            const amount = parseInt(document.getElementById("amount").value);
+            const interval = parseInt(document.getElementById("interval").value);
 
-function startNewSession() {
-    const cookie = document.getElementById("cookie").value;
-    const url = document.getElementById("url").value;
-    const amount = parseInt(document.getElementById("amount").value);
-    const interval = parseInt(document.getElementById("interval").value);
+            // Check if any value is empty or invalid
+            if (!cookie || !url || amount <= 0 || interval <= 0 || amount > 100000 || interval > 60) {
+                alert("Please fill out all fields with valid values (Amount <= 100000 and Interval <= 60 seconds)!");
+                return;
+            }
 
-    // Check if any value is empty or invalid
-    if (!cookie || !url || amount <= 0 || interval <= 0 || amount > 100000 || interval > 60) {
-        alert("Please fill out all fields with valid values (Amount <= 100000 and Interval <= 60 seconds)!");
-        return;
-    }
+            document.getElementById("startSessionBtn").disabled = true;
+            document.getElementById("loadingSpinner").style.display = "block";
 
-    document.getElementById("startSessionBtn").disabled = true;
-    document.getElementById("loadingSpinner").style.display = "block";
+            const sessionId = Math.random().toString(36).substr(2, 9);
+            const sessionHTML = ` 
+                <div class="session" id="session-${sessionId}">
+                    <h5>Session ${sessionId}</h5>
+                    <p>💖 Active Shares: <span id="session-${sessionId}-count">0</span></p>
+                    <div class="progress">
+                        <div id="session-${sessionId}-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            `;
 
-    const sessionId = Math.random().toString(36).substr(2, 9);
-    const sessionHTML = ` 
-        <div class="session" id="session-${sessionId}">
-            <h5>Session ${sessionId}</h5>
-            <p>💖 Active Shares: <span id="session-${sessionId}-count">0</span></p>
-            <div class="progress">
-                <div id="session-${sessionId}-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-        </div>
-    `;
+            document.getElementById("sessionsContainer").insertAdjacentHTML("beforeend", sessionHTML);
 
-    document.getElementById("sessionsContainer").insertAdjacentHTML("beforeend", sessionHTML);
+            performSharing(cookie, url, amount, interval, sessionId);
+        }
 
-    performSharing(cookie, url, amount, interval, sessionId);
-}
-
-function changeBackground(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function (e) {
-        document.body.style.backgroundImage = `url(${e.target.result})`;
-    };
-    reader.readAsDataURL(file);
-}
-
+        function changeBackground(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function (e) {
+                document.body.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
+        }
     </script>
 </body>
 </html>
