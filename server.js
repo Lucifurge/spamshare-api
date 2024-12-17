@@ -83,7 +83,8 @@ app.post('/share', async (req, res) => {
 
 // Utility to extract Facebook post ID from various URL formats
 function extractPostId(url) {
-    const postRegex = /facebook\.com\/(?:[^\/]+)\/(?:posts?|share\/p)\/([a-zA-Z0-9_]+)/;
+    // Match multiple Facebook post formats
+    const postRegex = /facebook\.com\/(?:[^\/]+)\/(?:posts?|share\/p|photos?)\/([a-zA-Z0-9_]+)/;
     const match = url.match(postRegex);
     return match ? match[1] : null;
 }
