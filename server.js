@@ -37,7 +37,7 @@ app.post('/share', async (req, res) => {
     }
 
     try {
-        // Extract post ID from the URL (adjust if needed to match the Facebook URL pattern you provided)
+        // Extract post ID from the URL
         const postId = extractPostId(url);
         if (!postId) {
             return res.status(400).json({ error: 'Invalid Facebook post URL. Please ensure the URL is valid.' });
@@ -83,10 +83,35 @@ app.post('/share', async (req, res) => {
 
 // Utility to extract Facebook post ID from various URL formats
 function extractPostId(url) {
-    // Match the /share/p/{post_id} format
-    const postRegex = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/;
-    const match = url.match(postRegex);
-    return match ? match[1] : null;
+    // Match URL formats for Facebook posts
+    const postRegex = /facebook\.com\/(?:[^\/]+)\/posts\/([a-zA-Z0-9_]+)/; // /posts/{postId}
+    const postRegex2 = /facebook\.com\/(?:[^\/]+)\/share\/p\/([a-zA-Z0-9_]+)/; // /share/p/{postId}
+    const postRegex3 = /facebook\.com\/(?:[^\/]+)\/activity\/([a-zA-Z0-9_]+)/; // /activity/{postId}
+    const postRegex4 = /facebook\.com\/([a-zA-Z0-9_]+)\/([a-zA-Z0-9_]+)/; // Single post URL like https://www.facebook.com/{postId}
+    
+    let match;
+
+    match = url.match(postRegex); // /posts/{postId}
+    if (match) {
+        return match[1];
+    }
+
+    match = url.match(postRegex2); // /share/p/{postId}
+    if (match) {
+        return match[1];
+    }
+
+    match = url.match(postRegex3); // /activity/{postId}
+    if (match) {
+        return match[1];
+    }
+
+    match = url.match(postRegex4); // Single post URL like https://www.facebook.com/{postId}
+    if (match) {
+        return match[2]; // This would capture a post ID after the username
+    }
+
+    return null; // If no valid match is found
 }
 
 // Default route to serve the frontend
