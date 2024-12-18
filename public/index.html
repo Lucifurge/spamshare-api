@@ -5,49 +5,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SpamShare Tool</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background-color: #f4f4f9;
-      color: #333;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      background-color: #1f1f1f;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #ffffff;
+    }
+
+    label {
+      font-size: 1rem;
+      color: #e4e4e4;
+      margin-bottom: 8px;
+      display: block;
+      text-align: left;
+    }
+
     input, textarea, button {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 15px;
+      margin: 12px 0;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background-color: #222;
+      color: #e4e4e4;
+      font-size: 1rem;
+      transition: all 0.3s ease;
     }
+
+    input:focus, textarea:focus {
+      border-color: #0070f3;
+      outline: none;
+    }
+
     button {
-      background-color: #28a745;
-      color: white;
+      background-color: #0070f3;
+      color: #fff;
       border: none;
       cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
+
     button:hover {
-      background-color: #218838;
+      background-color: #0051cc;
+      transform: translateY(-2px);
     }
+
+    button:active {
+      background-color: #003a8c;
+      transform: translateY(0);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 140px;
+    }
+
+    pre {
+      background-color: #1a1a1a;
+      color: #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
   </style>
 </head>
 <body>
-  <h1>SpamShare Tool</h1>
-  <form id="spamshareForm">
-    <label for="fbLink">Facebook Post URL:</label>
-    <input type="url" id="fbLink" placeholder="Enter Facebook Post URL" required />
 
-    <label for="fbCookies">Facebook Cookies (JSON):</label>
-    <textarea id="fbCookies" rows="5" placeholder='Paste your Facebook cookies here in JSON format' required></textarea>
+  <div class="container">
+    <h1>SpamShare Tool</h1>
+    <form id="spamshareForm">
+      <label for="fbLink">Facebook Post URL:</label>
+      <input type="url" id="fbLink" placeholder="Enter Facebook Post URL" required />
 
-    <label for="interval">Interval Between Shares (in seconds):</label>
-    <input type="number" id="interval" min="1" placeholder="Interval in seconds" required />
+      <label for="fbCookies">Facebook Cookies (JSON):</label>
+      <textarea id="fbCookies" placeholder='Paste your Facebook cookies here in JSON format' required></textarea>
 
-    <label for="shareCount">Number of Shares:</label>
-    <input type="number" id="shareCount" min="1" placeholder="Number of shares" required />
+      <label for="interval">Interval Between Shares (in seconds):</label>
+      <input type="number" id="interval" min="1" placeholder="Interval in seconds" required />
 
-    <button type="submit">Start Sharing</button>
-  </form>
+      <label for="shareCount">Number of Shares:</label>
+      <input type="number" id="shareCount" min="1" placeholder="Number of shares" required />
 
-  <pre id="response"></pre>
+      <button type="submit">Start Sharing</button>
+    </form>
+
+    <pre id="response"></pre>
+  </div>
+
+  <div class="footer">
+    <p>Developed by Luke | Powered by Vercel</p>
+  </div>
 
   <script>
     document.getElementById("spamshareForm").addEventListener("submit", async (e) => {
@@ -62,7 +149,8 @@
       responseElem.textContent = "Sending request to backend...";
 
       try {
-        const response = await fetch("https://spamshare-api-kfhc.onrender.com/spamshare", {
+        const response = await fetch("https://spamshare-jqqo6bx2n-lucifurges-projects.vercel.app/spamshare", 
+          {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ fbLink, fbCookies: JSON.parse(fbCookies), interval, shareCount }),
@@ -75,5 +163,6 @@
       }
     });
   </script>
+
 </body>
 </html>
