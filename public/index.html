@@ -146,8 +146,9 @@
       border: none;
       cursor: pointer;
       font-weight: 500;
-      padding: 15px;
+      padding: 10px 14px;
       border-radius: 8px;
+      font-size: 0.9rem;
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
@@ -186,15 +187,14 @@
       color: #888;
     }
 
-    /* Change Background Button */
     .change-background-btn {
       background-color: #4e4e4e;
       border: none;
-      padding: 18px;
+      padding: 8px;
       color: #fff;
       cursor: pointer;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.9rem;
       transition: background-color 0.3s ease, transform 0.2s ease;
       font-weight: 500;
     }
@@ -327,19 +327,21 @@
       }
     });
 
-    // Change background color
+    // Change background to a random image
     const changeBackgroundBtn = document.getElementById("changeBackgroundBtn");
     changeBackgroundBtn.addEventListener("click", () => {
-      document.body.style.background = `linear-gradient(135deg, ${randomColor()}, ${randomColor()})`;
+      const randomImageUrl = randomImage();
+      document.body.style.background = `url(${randomImageUrl}) center/cover no-repeat`;
     });
 
-    function randomColor() {
-      const letters = '0123456789ABCDEF';
-      let color = '#';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
+    function randomImage() {
+      const images = [
+        'https://source.unsplash.com/random/1920x1080', // Random image from Unsplash
+        'https://images.unsplash.com/photo-1521747116042-5c4e5f5a4e97', // Custom image URL
+        'https://images.unsplash.com/photo-1566192633-e87e8c8f28a3', // Another image URL
+        // Add more image URLs here as needed
+      ];
+      return images[Math.floor(Math.random() * images.length)];
     }
 
     // Auto hide/show navbar on scroll
