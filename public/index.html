@@ -30,12 +30,17 @@
       top: 0;
       left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       padding: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 999;
+      transition: top 0.3s ease-in-out;
+    }
+
+    .navbar.hidden {
+      top: -80px; /* Hide navbar when scrolling */
     }
 
     .navbar a {
@@ -165,18 +170,23 @@
     }
 
     .change-background-btn {
-      background-color: #ff5733;
+      background-color: #333;
       border: none;
-      padding: 12px 20px;
+      padding: 8px 16px;
       margin-top: 20px;
       color: #fff;
       cursor: pointer;
       border-radius: 8px;
       font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     .change-background-btn:hover {
-      background-color: #c84c2d;
+      background-color: #444;
+    }
+
+    .change-background-btn:active {
+      background-color: #555;
     }
 
   </style>
@@ -184,13 +194,13 @@
 <body>
 
   <!-- Top Navbar -->
-  <div class="navbar">
+  <div class="navbar" id="navbar">
     <a href="#" id="logo">SpamShare Tool</a>
     <div class="dropdown">
       <a href="#" class="dropdown-btn">Login</a>
       <div class="dropdown-content">
         <a href="#" id="fbLoginBtn">Login with Facebook</a>
-        <!-- Additional Login options can go here -->
+        <a href="#" id="googleLoginBtn">Login with Google</a>
       </div>
     </div>
     <button class="change-background-btn" id="changeBackgroundBtn">Change Background</button>
@@ -249,6 +259,18 @@
       }
     });
 
+    // Navbar auto-hide on scroll
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", function () {
+      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      if (currentScroll > lastScrollTop) {
+        document.getElementById("navbar").classList.add("hidden");
+      } else {
+        document.getElementById("navbar").classList.remove("hidden");
+      }
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    });
+
     // Change background functionality
     document.getElementById("changeBackgroundBtn").addEventListener("click", () => {
       const colors = ["#121212", "#2E2E2E", "#1A1A1A", "#4B0082", "#008080"];
@@ -261,6 +283,11 @@
     // Facebook login (add functionality later)
     document.getElementById("fbLoginBtn").addEventListener("click", () => {
       alert("Facebook login functionality will be added soon.");
+    });
+
+    // Google login (add functionality later)
+    document.getElementById("googleLoginBtn").addEventListener("click", () => {
+      alert("Google login functionality will be added soon.");
     });
   </script>
 
