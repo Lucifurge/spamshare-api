@@ -1,5 +1,7 @@
 const express = require("express");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer");  // Using latest Puppeteer
+const puppeteerCore = require("puppeteer-core");  // For cloud compatibility fallback
+const chromeLambda = require("chrome-aws-lambda");  // For cloud compatibility
 const cors = require("cors");
 const path = require("path");
 
@@ -21,11 +23,23 @@ app.post("/spamshare", async (req, res) => {
   }
 
   try {
-    // Launch Puppeteer and navigate to Facebook
-    const browser = await puppeteer.launch({
-      headless: false,  // Set to true to run headlessly
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    });
+    // Determine if we are in a cloud environment (Render)
+    let browser;
+    if (process.env.RENDER || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      // Use puppeteer-core with chrome-aws-lambda for cloud environments
+      browser = await puppeteerCore.launch({
+        headless: true,
+        args: chromeLambda.args,
+        executablePath: await chromeLambda.executablePath,
+        defaultViewport: chromeLambda.defaultViewport,
+      });
+    } else {
+      // Use Puppeteer for local environments
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      });
+    }
 
     const page = await browser.newPage();
 
