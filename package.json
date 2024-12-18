@@ -15,7 +15,8 @@
       "puppeteer": "^23.10.4",
       "puppeteer-core": "^23.10.4",
       "puppeteer-extra": "^3.3.6",
-      "puppeteer-extra-plugin-stealth": "^2.11.2"
+      "puppeteer-extra-plugin-stealth": "^2.11.2",
+      "chrome-aws-lambda": "^9.1.0"
     },
     "engines": {
       "node": ">=14.0.0"
