@@ -1,6 +1,6 @@
 const express = require("express");
-const puppeteer = require("puppeteer");  // Using latest Puppeteer
-const puppeteerCore = require("puppeteer-core");  // For cloud compatibility fallback
+const puppeteerCore = require("puppeteer-core");  // For cloud compatibility
+const puppeteer = require("puppeteer");  // Using Puppeteer for local environments
 const chromeLambda = require("chrome-aws-lambda");  // For cloud compatibility
 const cors = require("cors");
 const path = require("path");
@@ -23,7 +23,7 @@ app.post("/spamshare", async (req, res) => {
   }
 
   try {
-    // Determine if we are in a cloud environment (Render)
+    // Determine if we are in a cloud environment (Render or AWS Lambda)
     let browser;
     if (process.env.RENDER || process.env.AWS_LAMBDA_FUNCTION_NAME) {
       // Use puppeteer-core with chrome-aws-lambda for cloud environments
