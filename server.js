@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Utility function to introduce delays
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Share endpoint
 app.post('/share', async (req, res) => {
@@ -18,20 +18,12 @@ app.post('/share', async (req, res) => {
 
   // Validate input fields
   if (!cookies || !url || !amount || !interval) {
-    return res.status(400).json({ error: 'Missing required fields: cookies, url, amount, interval.' });
+    return res
+      .status(400)
+      .json({ error: 'Missing required fields: cookies, url, amount, interval.' });
   }
 
-  // Ensure the share amount is between 1 and 100,000
-  if (amount <= 0 || amount > 100000) {
-    return res.status(400).json({ error: 'Amount must be between 1 and 100,000.' });
-  }
-
-  // Ensure the interval is between 1 and 60 seconds
-  if (interval < 1 || interval > 60) {
-    return res.status(400).json({ error: 'Interval must be between 1 and 60 seconds.' });
-  }
-
-  const cookieString = cookies.map(cookie => `${cookie.key}=${cookie.value}`).join('; '); // Format cookies properly
+  const cookieString = cookies.map((cookie) => `${cookie.key}=${cookie.value}`).join('; ');
 
   try {
     let successes = 0;
@@ -40,20 +32,17 @@ app.post('/share', async (req, res) => {
     const sharePost = async (index) => {
       console.log(`Sharing post #${index + 1}`);
       try {
-        const response = await axios.get(
-          `https://www.facebook.com/sharer/sharer.php`,
-          {
-            params: { u: encodeURIComponent(url) },
-            headers: {
-              'Cookie': cookieString, // Pass user session cookies
-              'User-Agent': `Mozilla/5.0 (Windows NT ${10 + Math.floor(Math.random() * 2)}.0; Win64; x64) AppleWebKit/537.${Math.floor(Math.random() * 100)} (KHTML, like Gecko) Chrome/${100 + Math.floor(Math.random() * 20)}.0.0.0 Safari/537.${Math.floor(Math.random() * 100)}`, // Randomized User-Agent
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-              'Accept-Language': 'en-US,en;q=0.5',
-              'Referer': 'https://www.facebook.com/', // Ensure proper referer header
-              'Connection': 'keep-alive',
-            },
-          }
-        );
+        const response = await axios.get('https://www.facebook.com/sharer/sharer.php', {
+          params: { u: encodeURIComponent(url) },
+          headers: {
+            Cookie: cookieString,
+            'User-Agent': `Mozilla/5.0 (Windows NT ${10 + Math.floor(Math.random() * 2)}.0; Win64; x64) AppleWebKit/537.${Math.floor(Math.random() * 100)} (KHTML, like Gecko) Chrome/${100 + Math.floor(Math.random() * 20)}.0.0.0 Safari/537.${Math.floor(Math.random() * 100)}`,
+            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            Referer: 'https://www.facebook.com/',
+            Connection: 'keep-alive',
+          },
+        });
 
         if (response.status === 200) {
           console.log(`Share #${index + 1} succeeded`);
@@ -85,7 +74,7 @@ app.post('/share', async (req, res) => {
     }
 
     res.status(200).json({
-      message: `Successfully processed ${successes} shares with ${failures} failures.`
+      message: `Successfully processed ${successes} shares with ${failures} failures.`,
     });
   } catch (error) {
     console.error('Unexpected error:', error.message);
