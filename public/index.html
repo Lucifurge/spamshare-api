@@ -24,6 +24,61 @@
       transition: background 0.3s ease;
     }
 
+    /* Navbar Styling */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 20px;
+      font-size: 1.1rem;
+      margin-right: 10px;
+    }
+
+    .navbar a:hover {
+      background-color: #0070f3;
+      border-radius: 8px;
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #333;
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      padding: 12px 16px;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #0070f3;
+    }
+
     .container {
       background-color: #1f1f1f;
       padding: 40px;
@@ -31,6 +86,7 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       width: 100%;
       max-width: 480px;
+      margin-top: 80px; /* Space for fixed navbar */
     }
 
     h1 {
@@ -127,6 +183,19 @@
 </head>
 <body>
 
+  <!-- Top Navbar -->
+  <div class="navbar">
+    <a href="#" id="logo">SpamShare Tool</a>
+    <div class="dropdown">
+      <a href="#" class="dropdown-btn">Login</a>
+      <div class="dropdown-content">
+        <a href="#" id="fbLoginBtn">Login with Facebook</a>
+        <!-- Additional Login options can go here -->
+      </div>
+    </div>
+    <button class="change-background-btn" id="changeBackgroundBtn">Change Background</button>
+  </div>
+
   <div class="container">
     <h1>SpamShare Tool</h1>
     <form id="spamshareForm">
@@ -146,8 +215,6 @@
     </form>
 
     <pre id="response"></pre>
-    
-    <button class="change-background-btn" id="changeBackgroundBtn">Change Background</button>
   </div>
 
   <div class="footer">
@@ -155,6 +222,7 @@
   </div>
 
   <script>
+    // Handle form submission
     document.getElementById("spamshareForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -181,10 +249,18 @@
       }
     });
 
+    // Change background functionality
     document.getElementById("changeBackgroundBtn").addEventListener("click", () => {
       const colors = ["#121212", "#2E2E2E", "#1A1A1A", "#4B0082", "#008080"];
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       document.body.style.backgroundColor = randomColor;
+      // If you want to set an image background instead:
+      // document.body.style.backgroundImage = "url('your-image-url.jpg')";
+    });
+
+    // Facebook login (add functionality later)
+    document.getElementById("fbLoginBtn").addEventListener("click", () => {
+      alert("Facebook login functionality will be added soon.");
     });
   </script>
 
