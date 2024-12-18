@@ -13,7 +13,6 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
       color: #fff;
       display: flex;
       justify-content: center;
@@ -21,8 +20,7 @@
       height: 100vh;
       padding: 0;
       text-align: center;
-      transition: background 0.3s ease;
-      overflow: hidden;
+      background: #1f1f1f; /* Default background */
     }
 
     /* Navbar Styling */
@@ -329,36 +327,30 @@
 
     // Change background to a random image
     const changeBackgroundBtn = document.getElementById("changeBackgroundBtn");
+    const imageInput = document.createElement("input");
+    imageInput.type = "file";
+    imageInput.accept = "image/*";
+    imageInput.style.display = "none";
+
+    // When button is clicked, trigger the file input
     changeBackgroundBtn.addEventListener("click", () => {
-      const randomImageUrl = randomImage();
-      document.body.style.background = `url(${randomImageUrl}) center/cover no-repeat`;
+      imageInput.click(); // Open file dialog
     });
 
-    function randomImage() {
-      const images = [
-        'https://source.unsplash.com/random/1920x1080', // Random image from Unsplash
-        'https://images.unsplash.com/photo-1521747116042-5c4e5f5a4e97', // Custom image URL
-        'https://images.unsplash.com/photo-1566192633-e87e8c8f28a3', // Another image URL
-        // Add more image URLs here as needed
-      ];
-      return images[Math.floor(Math.random() * images.length)];
-    }
-
-    // Auto hide/show navbar on scroll
-    let lastScrollTop = 0;
-    const navbar = document.getElementById("navbar");
-    
-    window.addEventListener("scroll", () => {
-      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-      if (currentScroll > lastScrollTop) {
-        navbar.classList.add("hidden");
-      } else {
-        navbar.classList.remove("hidden");
+    // When a file is selected, change the background
+    imageInput.addEventListener("change", (event) => {
+      const file = event.target.files[0]; // Get the selected file
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          // Set the background to the selected image
+          document.body.style.background = `url(${e.target.result}) center/cover no-repeat`;
+        };
+        reader.readAsDataURL(file); // Convert image to data URL
       }
-      
-      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Prevent negative scroll values
     });
+
   </script>
+
 </body>
 </html>
