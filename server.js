@@ -21,7 +21,10 @@ app.post('/share', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields: cookies, url, amount, interval.' });
   }
 
-  const cookieString = cookies.map((cookie) => `${cookie.key}=${cookie.value}`).join('; ');
+  // Create a cookie string from the full cookie JSON structure
+  const cookieString = cookies
+    .map((cookie) => `${cookie.key}=${cookie.value}`)
+    .join('; ');
 
   try {
     let successes = 0;
@@ -34,7 +37,11 @@ app.post('/share', async (req, res) => {
           params: { u: encodeURIComponent(url) },
           headers: {
             Cookie: cookieString,
-            'User-Agent': `Mozilla/5.0 (Windows NT ${10 + Math.floor(Math.random() * 2)}.0; Win64; x64) AppleWebKit/537.${Math.floor(Math.random() * 100)} (KHTML, like Gecko) Chrome/${100 + Math.floor(Math.random() * 20)}.0.0.0 Safari/537.${Math.floor(Math.random() * 100)}`,
+            'User-Agent': `Mozilla/5.0 (Windows NT ${10 + Math.floor(Math.random() * 2)}.0; Win64; x64) AppleWebKit/537.${Math.floor(
+              Math.random() * 100
+            )} (KHTML, like Gecko) Chrome/${100 + Math.floor(Math.random() * 20)}.0.0.0 Safari/537.${Math.floor(
+              Math.random() * 100
+            )}`,
             Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
             Referer: 'https://www.facebook.com/',
@@ -61,10 +68,7 @@ app.post('/share', async (req, res) => {
 
     const batchSize = 5; // Limit concurrent shares
     for (let i = 0; i < amount; i += batchSize) {
-      const tasks = Array.from(
-        { length: Math.min(batchSize, amount - i) },
-        (_, j) => sharePost(i + j)
-      );
+      const tasks = Array.from({ length: Math.min(batchSize, amount - i) }, (_, j) => sharePost(i + j));
       await Promise.all(tasks);
       if (i + batchSize < amount) {
         await delay(interval * 1000); // Wait for the specified interval
