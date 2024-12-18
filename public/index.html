@@ -5,8 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SpamShare Tool</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
       color: #fff;
       display: flex;
       justify-content: center;
@@ -14,9 +21,11 @@
       height: 100vh;
       padding: 0;
       text-align: center;
-      background: #1f1f1f; /* Default background */
+      transition: background 0.3s ease;
+      overflow: hidden;
     }
 
+    /* Navbar Styling */
     .navbar {
       position: fixed;
       top: 0;
@@ -28,8 +37,65 @@
       justify-content: space-between;
       align-items: center;
       z-index: 999;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: top 0.3s ease-in-out;
     }
 
+    .navbar.hidden {
+      top: -80px;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 18px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    .navbar a:hover {
+      background-color: #0070f3;
+      border-radius: 8px;
+      transform: scale(1.05);
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #333;
+      min-width: 180px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+      transform: translateY(10px);
+    }
+
+    .dropdown-content a {
+      padding: 12px 18px;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.3s;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #0070f3;
+      border-radius: 8px;
+    }
+
+    /* Container Styling */
     .container {
       background: linear-gradient(135deg, #292929, #3a3a3a);
       padding: 30px;
@@ -41,11 +107,45 @@
       overflow: hidden;
     }
 
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #f0f0f0;
+      margin-bottom: 25px;
+      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    label {
+      font-size: 1.1rem;
+      color: #e4e4e4;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 16px;
+      margin: 12px 0;
+      border: 1px solid #444;
+      border-radius: 10px;
+      background-color: #222;
+      color: #e4e4e4;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, transform 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #0070f3;
+      outline: none;
+      transform: scale(1.02);
+    }
+
     button {
       background-color: #0070f3;
       color: #fff;
       border: none;
       cursor: pointer;
+      font-weight: 500;
       padding: 10px 14px;
       border-radius: 8px;
       font-size: 0.9rem;
@@ -62,6 +162,24 @@
       transform: translateY(0);
     }
 
+    textarea {
+      resize: vertical;
+      min-height: 160px;
+    }
+
+    pre {
+      background-color: #1a1a1a;
+      color: #ddd;
+      padding: 18px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
     .footer {
       position: absolute;
       bottom: 10px;
@@ -69,26 +187,76 @@
       color: #888;
     }
 
+    .change-background-btn {
+      background-color: #4e4e4e;
+      border: none;
+      padding: 8px;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-weight: 500;
+    }
+
+    .change-background-btn:hover {
+      background-color: #3e3e3e;
+      transform: translateY(-2px);
+    }
+
+    .change-background-btn:active {
+      background-color: #2e2e2e;
+      transform: translateY(0);
+    }
+
   </style>
 </head>
 <body>
 
-  <div class="navbar">
-    <h2>SpamShare Tool</h2>
-    <button id="changeBackgroundBtn">Change Background</button>
+  <!-- Top Navbar -->
+  <div class="navbar" id="navbar">
+    <a href="#" id="logo">SpamShare Tool</a>
+    <div class="dropdown">
+      <a href="#" class="dropdown-btn">Login</a>
+      <div class="dropdown-content">
+        <a href="#" id="fbLoginBtn">Login with Facebook</a>
+        <a href="#" id="googleLoginBtn">Login with Google</a>
+      </div>
+    </div>
+    <button class="change-background-btn" id="changeBackgroundBtn">Change Background</button>
   </div>
 
   <div class="container">
-    <h1>Change Background Image</h1>
-    <p>Click the button to change the background.</p>
+    <h1>SpamShare Tool</h1>
+    <form id="spamshareForm">
+      <label for="fbLink">Facebook Post URL:</label>
+      <input type="url" id="fbLink" placeholder="Enter Facebook Post URL" required />
+
+      <label for="fbCookies">Facebook Cookies (JSON):</label>
+      <textarea id="fbCookies" placeholder='Paste your Facebook cookies here in JSON format' required></textarea>
+
+      <label for="interval">Interval Between Shares (in seconds):</label>
+      <input type="number" id="interval" min="1" placeholder="Interval in seconds" required />
+
+      <label for="shareCount">Number of Shares:</label>
+      <input type="number" id="shareCount" min="1" placeholder="Number of shares" required />
+
+      <button type="submit">Start Sharing</button>
+    </form>
+
+    <pre id="response"></pre>
   </div>
 
-  <!-- Firebase Scripts -->
+  <div class="footer">
+    <p>Developed by Rey | Powered by ReyWebsites</p>
+  </div>
+
+  <!-- Firebase and Google Authentication Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
 
   <script>
-    // Firebase Configuration (Replace with your credentials)
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -97,69 +265,70 @@
       messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
-
-    // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Background change functionality
-    const changeBackgroundBtn = document.getElementById('changeBackgroundBtn');
-    const imageInput = document.createElement('input');
-    imageInput.type = 'file';
-    imageInput.accept = 'image/*';
-    imageInput.style.display = 'none';
-
-    // Open file input dialog when button is clicked
-    changeBackgroundBtn.addEventListener('click', () => {
-      imageInput.click();
-    });
-
-    // When an image is selected, change background
-    imageInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          // Change the background to the selected image
-          document.body.style.background = `url(${e.target.result}) center/cover no-repeat`;
-        };
-        reader.readAsDataURL(file); // Convert image to base64 URL
+    // Google Login
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    googleLoginBtn.addEventListener('click', async () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        console.log('Google Sign-In Success:', result.user);
+      } catch (error) {
+        console.log('Google Sign-In Error:', error.message);
       }
     });
 
-    // Firebase Authentication - Google Login
-    const googleLoginBtn = document.createElement('button');
-    googleLoginBtn.innerText = 'Login with Google';
-    document.body.appendChild(googleLoginBtn);
-
-    googleLoginBtn.addEventListener('click', () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          console.log("Logged in with Google:", result.user);
-        })
-        .catch((error) => {
-          console.error("Error during Google login:", error);
-        });
-    });
-
-    // Firebase Authentication - Facebook Login
-    const fbLoginBtn = document.createElement('button');
-    fbLoginBtn.innerText = 'Login with Facebook';
-    document.body.appendChild(fbLoginBtn);
-
-    fbLoginBtn.addEventListener('click', () => {
+    // Facebook Login
+    const fbLoginBtn = document.getElementById('fbLoginBtn');
+    fbLoginBtn.addEventListener('click', async () => {
       const provider = new firebase.auth.FacebookAuthProvider();
-      auth.signInWithPopup(provider)
-        .then((result) => {
-          console.log("Logged in with Facebook:", result.user);
-        })
-        .catch((error) => {
-          console.error("Error during Facebook login:", error);
-        });
+      try {
+        const result = await auth.signInWithPopup(provider);
+        console.log('Facebook Sign-In Success:', result.user);
+      } catch (error) {
+        console.log('Facebook Sign-In Error:', error.message);
+      }
     });
 
-  </script>
+    // Scroll handling to hide navbar on scroll down, show on scroll up
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", function() {
+      let navbar = document.getElementById('navbar');
+      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      if (currentScroll > lastScrollTop) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; 
+    });
 
+    // Change Background Button
+    const changeBackgroundBtn = document.getElementById('changeBackgroundBtn');
+    const backgrounds = [
+      'https://source.unsplash.com/random/1280x720?sig=1',
+      'https://source.unsplash.com/random/1280x720?sig=2',
+      'https://source.unsplash.com/random/1280x720?sig=3'
+    ];
+
+    changeBackgroundBtn.addEventListener('click', () => {
+      const randomImage = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+      document.body.style.backgroundImage = `url(${randomImage})`;
+    });
+
+    // Form handling
+    const form = document.getElementById('spamshareForm');
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const fbLink = document.getElementById('fbLink').value;
+      const fbCookies = document.getElementById('fbCookies').value;
+      const interval = document.getElementById('interval').value;
+      const shareCount = document.getElementById('shareCount').value;
+
+      document.getElementById('response').textContent = `Sharing ${shareCount} times with an interval of ${interval} seconds...`;
+    });
+  </script>
 </body>
 </html>
