@@ -11,9 +11,9 @@
       "cors": "^2.8.5",
       "express": "^4.18.2",
       "express-validator": "^7.2.0",
-      "puppeteer": "^23.10.4",
-      "puppeteer-core": "^23.10.4",
-      "chrome-aws-lambda": "^9.0.0", 
+      "puppeteer": "^9.1.0",  // Downgrade to ^9.1.0
+      "puppeteer-core": "^9.1.0",  // Downgrade to ^9.1.0
+      "chrome-aws-lambda": "^9.1.0",  // Make sure it's compatible
       "puppeteer-extra": "^3.3.6",
       "puppeteer-extra-plugin-stealth": "^2.11.2"
     },
