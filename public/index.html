@@ -3,75 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facebook Spam Share</title>
+  <title>SpamShare Tool</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 2rem;
+      background-color: #f4f4f9;
+      color: #333;
     }
-    input, button {
-      display: block;
-      margin: 10px 0;
+    input, textarea, button {
+      width: 100%;
       padding: 10px;
-      width: 300px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
     button {
+      background-color: #28a745;
+      color: white;
+      border: none;
       cursor: pointer;
     }
-    .log {
-      margin-top: 20px;
-      border: 1px solid #ddd;
-      padding: 10px;
-      height: 200px;
-      overflow-y: auto;
+    button:hover {
+      background-color: #218838;
     }
   </style>
 </head>
 <body>
-  <h1>Facebook Spam Share</h1>
-  <form id="shareForm">
-    <label for="cookies">Cookies (JSON Array):</label>
-    <textarea id="cookies" rows="5" placeholder='[{"key":"c_user","value":"your_value"}, {"key":"xs","value":"your_value"}]'></textarea>
-    
-    <label for="url">URL to Share:</label>
-    <input type="text" id="url" placeholder="https://example.com">
-    
-    <label for="amount">Number of Shares:</label>
-    <input type="number" id="amount" placeholder="Enter the number of shares">
+  <h1>SpamShare Tool</h1>
+  <form id="spamshareForm">
+    <label for="fbLink">Facebook Post URL:</label>
+    <input type="url" id="fbLink" placeholder="Enter Facebook Post URL" required />
 
-    <label for="interval">Interval (in seconds):</label>
-    <input type="number" id="interval" placeholder="Enter interval between shares">
+    <label for="fbCookies">Facebook Cookies (JSON):</label>
+    <textarea id="fbCookies" rows="5" placeholder='Paste your Facebook cookies here in JSON format' required></textarea>
+
+    <label for="interval">Interval Between Shares (in seconds):</label>
+    <input type="number" id="interval" min="1" placeholder="Interval in seconds" required />
+
+    <label for="shareCount">Number of Shares:</label>
+    <input type="number" id="shareCount" min="1" placeholder="Number of shares" required />
 
     <button type="submit">Start Sharing</button>
   </form>
 
-  <div class="log" id="log"></div>
+  <pre id="response"></pre>
 
   <script>
-    const form = document.getElementById('shareForm');
-    const log = document.getElementById('log');
-
-    form.addEventListener('submit', async (e) => {
+    document.getElementById("spamshareForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const cookies = JSON.parse(document.getElementById('cookies').value);
-      const url = document.getElementById('url').value;
-      const amount = parseInt(document.getElementById('amount').value);
-      const interval = parseInt(document.getElementById('interval').value);
+      const fbLink = document.getElementById("fbLink").value;
+      const fbCookies = document.getElementById("fbCookies").value;
+      const interval = parseInt(document.getElementById("interval").value);
+      const shareCount = parseInt(document.getElementById("shareCount").value);
+
+      const responseElem = document.getElementById("response");
+      responseElem.textContent = "Sending request to backend...";
 
       try {
-        const response = await fetch('/share', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ cookies, url, amount, interval }),
+        const response = await fetch("https://spamshare-api-kfhc.onrender.com/spamshare", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fbLink, fbCookies: JSON.parse(fbCookies), interval, shareCount }),
         });
 
-        const data = await response.json();
-        log.innerText = `Response: ${JSON.stringify(data, null, 2)}`;
+        const result = await response.json();
+        responseElem.textContent = JSON.stringify(result, null, 2);
       } catch (error) {
-        log.innerText = `Error: ${error.message}`;
+        responseElem.textContent = `Error: ${error.message}`;
       }
     });
   </script>
