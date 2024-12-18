@@ -21,6 +21,7 @@
       height: 100vh;
       padding: 20px;
       text-align: center;
+      transition: background 0.3s ease;
     }
 
     .container {
@@ -107,6 +108,21 @@
       color: #888;
     }
 
+    .change-background-btn {
+      background-color: #ff5733;
+      border: none;
+      padding: 12px 20px;
+      margin-top: 20px;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .change-background-btn:hover {
+      background-color: #c84c2d;
+    }
+
   </style>
 </head>
 <body>
@@ -130,10 +146,12 @@
     </form>
 
     <pre id="response"></pre>
+    
+    <button class="change-background-btn" id="changeBackgroundBtn">Change Background</button>
   </div>
 
   <div class="footer">
-    <p>Developed by Luke | Powered by Vercel</p>
+    <p>Developed by Rey | Powered by ReyWebsites</p>
   </div>
 
   <script>
@@ -161,6 +179,12 @@
       } catch (error) {
         responseElem.textContent = `Error: ${error.message}`;
       }
+    });
+
+    document.getElementById("changeBackgroundBtn").addEventListener("click", () => {
+      const colors = ["#121212", "#2E2E2E", "#1A1A1A", "#4B0082", "#008080"];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      document.body.style.backgroundColor = randomColor;
     });
   </script>
 
