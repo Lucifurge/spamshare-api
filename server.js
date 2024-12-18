@@ -18,9 +18,7 @@ app.post('/share', async (req, res) => {
 
   // Validate input fields
   if (!cookies || !url || !amount || !interval) {
-    return res
-      .status(400)
-      .json({ error: 'Missing required fields: cookies, url, amount, interval.' });
+    return res.status(400).json({ error: 'Missing required fields: cookies, url, amount, interval.' });
   }
 
   const cookieString = cookies.map((cookie) => `${cookie.key}=${cookie.value}`).join('; ');
