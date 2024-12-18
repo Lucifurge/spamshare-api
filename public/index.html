@@ -190,7 +190,7 @@
     .change-background-btn {
       background-color: #4e4e4e;
       border: none;
-      padding: 10px 18px;
+      padding: 18px;
       color: #fff;
       cursor: pointer;
       border-radius: 8px;
@@ -251,7 +251,49 @@
     <p>Developed by Rey | Powered by ReyWebsites</p>
   </div>
 
+  <!-- Firebase and Google Authentication Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
   <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Google Login
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
+    googleLoginBtn.addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          console.log("Logged in with Google:", result.user);
+        })
+        .catch((error) => {
+          console.error("Error during Google login:", error);
+        });
+    });
+
+    // Facebook Login
+    const fbLoginBtn = document.getElementById("fbLoginBtn");
+    fbLoginBtn.addEventListener("click", () => {
+      const provider = new firebase.auth.FacebookAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          console.log("Logged in with Facebook:", result.user);
+        })
+        .catch((error) => {
+          console.error("Error during Facebook login:", error);
+        });
+    });
+
     // Handle form submission
     document.getElementById("spamshareForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -268,29 +310,53 @@
         const response = await fetch("https://spamshare-jqqo6bx2n-lucifurges-projects.vercel.app/spamshare", 
           {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fbLink, fbCookies: JSON.parse(fbCookies), interval, shareCount }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fbLink, fbCookies, interval, shareCount })
         });
 
-        const result = await response.json();
-        responseElem.textContent = JSON.stringify(result, null, 2);
+        const data = await response.json();
+        if (response.ok) {
+          responseElem.textContent = "Share successful!";
+        } else {
+          responseElem.textContent = "Error: " + data.error;
+        }
       } catch (error) {
-        responseElem.textContent = `Error: ${error.message}`;
+        responseElem.textContent = "Network error!";
       }
     });
 
-    // Navbar auto-hide on scroll
-    let lastScrollTop = 0;
-    window.addEventListener("scroll", function () {
-      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-      if (currentScroll > lastScrollTop) {
-        document.getElementById("navbar").classList.add("hidden");
-      } else {
-        document.getElementById("navbar").classList.remove("hidden");
+    // Change background color
+    const changeBackgroundBtn = document.getElementById("changeBackgroundBtn");
+    changeBackgroundBtn.addEventListener("click", () => {
+      document.body.style.background = `linear-gradient(135deg, ${randomColor()}, ${randomColor()})`;
+    });
+
+    function randomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
       }
-      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For Mobile or negative scrolling
+      return color;
+    }
+
+    // Auto hide/show navbar on scroll
+    let lastScrollTop = 0;
+    const navbar = document.getElementById("navbar");
+    
+    window.addEventListener("scroll", () => {
+      let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (currentScroll > lastScrollTop) {
+        navbar.classList.add("hidden");
+      } else {
+        navbar.classList.remove("hidden");
+      }
+      
+      lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Prevent negative scroll values
     });
   </script>
-
 </body>
 </html>
