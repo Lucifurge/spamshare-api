@@ -26,7 +26,7 @@
         }
 
         .navbar-nav .nav-link:hover {
-            color: #ff477e !important;
+            color: #000000 !important;
         }
 
         .section {
@@ -57,7 +57,7 @@
         }
 
         .session h5 {
-            color: #ff477e;
+            color: #0e0e0e;
         }
 
         .loading-spinner {
@@ -91,7 +91,7 @@
     </header>
 
     <section id="share" class="container py-5 section">
-        <h2 class="text-center" style="color: #ff477e;">Auto Share Your Posts</h2>
+        <h2 class="text-center" style="color: #f8f8f8;">Auto Share Your Posts</h2>
         <form id="shareForm" class="p-4 shadow">
             <div class="mb-3">
                 <label for="cookie" class="form-label">Facebook Cookie/Token</label>
@@ -119,16 +119,16 @@
     </section>
 
     <section id="activeShares" class="container py-3">
-        <h4 style="color: #ff477e;">Active Share Sessions</h4>
+        <h4 style="color: #000000;">Active Share Sessions</h4>
         <div id="sessionsContainer" class="session-container"></div>
     </section>
 
     <section id="about" class="text-center py-5 section">
-        <h2 style="color: #d62357;">About FB AutoShare</h2>
+        <h2 style="color: #0f0f0f;">About FB AutoShare</h2>
         <p>FB AutoShare is an automated tool designed to make sharing your posts easier and faster. Boost your reach with just a few clicks!</p>
     </section>
 
-    <footer class="text-center text-light py-3" style="background: rgba(214, 35, 87, 0.8); backdrop-filter: blur(5px);">
+    <footer class="text-center text-light py-3" style="background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);">
         &copy; 2024 Ishaanshares. All Rights Reserved. |
         <a href="https://reyzhaven.com/privacy-policy.html" style="color: #fff;">Privacy Policy</a> |
         <a href="https://reyzhaven.com/terms-of-service.html" style="color: #fff;">Terms of Service</a>
@@ -136,7 +136,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
     <script>
-      const API = 'https://spamshare-api-kfhc.onrender.com';
+      const API = 'https://spamshare-api-git-main-lucifurges-projects.vercel.app/';
 
 async function shareWithFallback({ cookie, url, amount, interval }) {
     console.log("Request data being sent:", { cookie, url, amount, interval });
@@ -212,7 +212,7 @@ function startNewSession() {
     const sessionHTML = ` 
         <div class="session" id="session-${sessionId}">
             <h5>Session ${sessionId}</h5>
-            <p>💖 Active Shares: <span id="session-${sessionId}-count">0</span></p>
+            <p>📖 Active Shares: <span id="session-${sessionId}-count">0</span></p>
             <div class="progress">
                 <div id="session-${sessionId}-progress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
