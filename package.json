@@ -2,9 +2,9 @@
   "name": "spamshare-api",
   "version": "1.0.0",
   "description": "An API to automate Facebook post sharing using Puppeteer",
-  "main": "server.js",
+  "main": "api/share.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node api/share.js",
     "postinstall": "npx puppeteer install"
   },
   "dependencies": {
