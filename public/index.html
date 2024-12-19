@@ -11,8 +11,6 @@
             background-color: rgba(0, 0, 0, 0.8);
             color: #fff;
             font-family: Arial, sans-serif;
-            background-image: url('default-background.jpg');
-            background-size: cover;
             transition: background 0.5s ease;
         }
 
@@ -126,23 +124,4 @@
                 const response = await fetch('/api/share', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fbLink: url, shareCount: amount, interval: interval, cookies: [{ name: 'cookie', value: cookie }] }),
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert("Sharing session started!");
-                } else {
-                    console.error("Error:", result.error);
-                    alert("Failed to start sharing session.");
-                }
-            } catch (error) {
-                console.error("Error during sharing:", error);
-                alert("An error occurred while starting the sharing session.");
-            } finally {
-                document.getElementById("loadingSpinner").style.display = "none";
-            }
-        }
-    </script>
-</body>
-</html>
+                    body: JSON.stringify({ fbLink: url, shareCount: amount, interval: interval, cookies
