@@ -109,7 +109,7 @@
                 const response = await fetch('/api/share', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cookie, url, amount, interval }),
+                    body: JSON.stringify({ fbLink: url, shareCount: amount, interval: interval, cookies: [{ name: 'cookie', value: cookie }] }),
                 });
 
                 const result = await response.json();
