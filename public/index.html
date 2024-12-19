@@ -40,6 +40,10 @@
         .loading-spinner {
             display: none;
         }
+
+        .hidden-file-input {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -53,6 +57,10 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#share">Share Post</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item">
+                        <input type="file" id="backgroundUpload" class="hidden-file-input" accept="image/*" onchange="changeBackground(event)">
+                        <a class="nav-link" href="javascript:void(0)" onclick="document.getElementById('backgroundUpload').click()">Change Background</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -92,6 +100,15 @@
     </section>
 
     <script>
+        function changeBackground(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.body.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function startSharing() {
             const cookie = document.getElementById("cookie").value;
             const url = document.getElementById("url").value;
