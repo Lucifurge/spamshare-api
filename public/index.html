@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ishaanshares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
     <style>
         body {
             background-color: rgba(0, 0, 0, 0.8);
@@ -117,19 +118,8 @@
             const amount = document.getElementById('amounts').value.trim();
             const interval = document.getElementById('intervals').value.trim();
 
-            // Validate form fields
             if (!cookies || !url || !amount || !interval) {
                 result.textContent = 'Please fill up all form fields.';
-                return;
-            }
-
-            if (parseInt(amount) < 1 || parseInt(amount) > 100000) {
-                result.textContent = 'Share count must be between 1 and 100000.';
-                return;
-            }
-
-            if (parseInt(interval) < 1 || parseInt(interval) > 60) {
-                result.textContent = 'Interval must be between 1 and 60 seconds.';
                 return;
             }
 
@@ -137,19 +127,13 @@
             result.textContent = 'Processing...';
 
             try {
-                const response = await fetch('/api/share', {
+                const response = await fetch('/api/share.js', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fbLink: url,
-                        shareCount: parseInt(amount),
-                        interval: parseInt(interval),
-                        cookies: [{ name: 'cookie', value: cookies }]
-                    })
+                    body: JSON.stringify({ fbLink: url, shareCount: parseInt(amount), interval: parseInt(interval), cookies: [{ name: 'cookie', value: cookies }] })
                 });
 
                 const data = await response.json();
-
                 if (response.ok) {
                     Swal.fire('Success!', data.message, 'success');
                 } else {
