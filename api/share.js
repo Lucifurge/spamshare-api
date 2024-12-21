@@ -15,6 +15,10 @@ app.post("/share", async (req, res) => {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
+  if (interval < 1 || interval > 60) {
+    return res.status(400).json({ error: "Interval must be between 1 and 60 seconds" });
+  }
+
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -24,9 +28,9 @@ app.post("/share", async (req, res) => {
     });
     const page = await browser.newPage();
 
-    // Set cookies
+    // Set cookies (fbstate)
     try {
-      await page.setCookie(...cookies);
+      await page.setCookie(...cookies);  // Using the provided cookies (fbstate)
     } catch (cookieError) {
       console.error("Error setting cookies:", cookieError);
       return res.status(400).json({ error: "Invalid cookies format" });
@@ -55,9 +59,9 @@ app.post("/share", async (req, res) => {
         sharedCount++;
         console.log(`Shared ${sharedCount} time(s)`);
 
-        // Randomized delay
-        const randomizedInterval = interval * 1000 + Math.random() * 2000; // Random delay between interval + 0–2 seconds
-        await page.waitForTimeout(randomizedInterval);
+        // Wait for the specified interval (in seconds)
+        console.log(`Waiting for ${interval} seconds...`);
+        await page.waitForTimeout(interval * 1000); // Delay in milliseconds
       } catch (shareError) {
         console.error(`Error during share operation at count ${sharedCount}:`, shareError);
         break; // Exit loop on failure to prevent infinite retries
