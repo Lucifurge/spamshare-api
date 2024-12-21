@@ -4,12 +4,20 @@
     {
       "src": "api/share.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/share",
       "dest": "/api/share.js"
+    },
+    {
+      "src": "/.*",
+      "dest": "/public/index.html"
     }
   ]
 }
