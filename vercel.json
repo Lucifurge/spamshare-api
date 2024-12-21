@@ -8,7 +8,7 @@
   "routes": [
     {
       "src": "/api/spam",
-      "dest": "/api/spam.js"
+      "dest": "api/spam.js"
     },
     {
       "src": "/.*",
