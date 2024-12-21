@@ -2,13 +2,13 @@
   "version": 2,
   "functions": {
     "api/spam.js": {
-      "runtime": "nodejs16.x"
+      "runtime": "@vercel/node@22.x"
     }
   },
   "routes": [
     {
       "src": "/api/spam",
-      "dest": "api/spam.js"
+      "dest": "/api/spam.js"
     },
     {
       "src": "/.*",
