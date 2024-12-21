@@ -8,7 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// CORS Handling for All Origins
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -16,7 +15,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Adjusted to match the frontend endpoint
 app.post("/api/spam", async (req, res) => {
   const { fbLink, shareCount, interval, cookies } = req.body;
 
