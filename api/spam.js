@@ -1,4 +1,3 @@
-
 const puppeteer = require("puppeteer-core");
 const chrome = require("chrome-aws-lambda");
 const express = require("express");
@@ -17,27 +16,24 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post("/share", async (req, res) => {
+// Adjusted to match the frontend endpoint
+app.post("/api/spam", async (req, res) => {
   const { fbLink, shareCount, interval, cookies } = req.body;
 
-  // Check if required parameters are missing
   if (!fbLink || !shareCount || !interval || !cookies) {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
-  // Validate interval (should be between 1 and 60 seconds)
   if (interval < 1 || interval > 60) {
     return res.status(400).json({ error: "Interval must be between 1 and 60 seconds" });
   }
 
-  // Validate cookies format
   if (!Array.isArray(cookies) || cookies.some(cookie => typeof cookie.name !== 'string' || typeof cookie.value !== 'string')) {
     return res.status(400).json({ error: "Invalid cookies format" });
   }
 
   let browser;
   try {
-    // Launch Puppeteer with AWS Lambda compatible configuration
     browser = await puppeteer.launch({
       executablePath: await chrome.executablePath,
       args: chrome.args,
@@ -45,15 +41,13 @@ app.post("/share", async (req, res) => {
     });
     const page = await browser.newPage();
 
-    // Set cookies (fbstate)
     try {
-      await page.setCookie(...cookies);  // Using the provided cookies (fbstate)
+      await page.setCookie(...cookies);
     } catch (cookieError) {
       console.error("Error setting cookies:", cookieError);
       return res.status(400).json({ error: "Invalid cookies format" });
     }
 
-    // Navigate to the Facebook post
     console.log("Navigating to Facebook...");
     try {
       await page.goto(fbLink, { waitUntil: "domcontentloaded" });
@@ -63,26 +57,19 @@ app.post("/share", async (req, res) => {
     }
 
     let sharedCount = 0;
-    // Loop to perform the share action multiple times
     while (sharedCount < shareCount) {
       try {
-        // Share button logic
         await page.waitForSelector('div[data-testid="share_button"]', { timeout: 10000 });
         await page.click('div[data-testid="share_button"]');
-
-        // Confirm sharing
         await page.waitForSelector('button[data-testid="share_dialog_button"]', { timeout: 10000 });
         await page.click('button[data-testid="share_dialog_button"]');
-
         sharedCount++;
         console.log(`Shared ${sharedCount} time(s)`);
-
-        // Wait for the specified interval (in seconds)
         console.log(`Waiting for ${interval} seconds...`);
-        await page.waitForTimeout(interval * 1000); // Delay in milliseconds
+        await page.waitForTimeout(interval * 1000);
       } catch (shareError) {
         console.error(`Error during share operation at count ${sharedCount}:`, shareError);
-        break; // Exit loop on failure to prevent infinite retries
+        break;
       }
     }
 
