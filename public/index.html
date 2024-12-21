@@ -127,7 +127,8 @@
             result.textContent = 'Processing...';
 
             try {
-                const response = await fetch('/api/share.js', {
+                fetch('/api/share', { method: 'POST', body: JSON.stringify(data) })
+ {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fbLink: url, shareCount: parseInt(amount), interval: parseInt(interval), cookies: [{ name: 'cookie', value: cookies }] })
