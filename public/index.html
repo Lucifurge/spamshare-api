@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,48 +110,49 @@
         }
 
         async function submitForm(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            const result = document.getElementById('result');
-            const button = document.getElementById('submit-button');
-            const cookies = document.getElementById('cookies').value.trim();
-            const url = document.getElementById('urls').value.trim();
-            const amount = document.getElementById('amounts').value.trim();
-            const interval = document.getElementById('intervals').value.trim();
+    const result = document.getElementById('result');
+    const button = document.getElementById('submit-button');
+    const cookies = document.getElementById('cookies').value.trim();
+    const url = document.getElementById('urls').value.trim();
+    const amount = document.getElementById('amounts').value.trim();
+    const interval = document.getElementById('intervals').value.trim();
 
-            if (!cookies || !url || !amount || !interval) {
-                result.textContent = 'Please fill up all form fields.';
-                return;
-            }
+    if (!cookies || !url || !amount || !interval) {
+        result.textContent = 'Please fill up all form fields.';
+        return;
+    }
 
-            button.disabled = true;
-            result.textContent = 'Processing...';
+    button.disabled = true;
+    result.textContent = 'Processing...';
 
-            try {
-                const response = await fetch('/api/share', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        fbLink: url,
-                        shareCount: parseInt(amount),
-                        interval: parseInt(interval),
-                        cookies: [{ name: 'cookie', value: cookies }]
-                    })
-                });
+    try {
+        const response = await fetch('/api/spam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fbLink: url,
+                shareCount: parseInt(amount),
+                interval: parseInt(interval),
+                cookies: [{ name: 'cookie', value: cookies }]
+            })
+        });
 
-                const data = await response.json();
-                if (response.ok) {
-                    Swal.fire('Success!', data.message, 'success');
-                } else {
-                    Swal.fire('Error!', data.error || 'An error occurred.', 'error');
-                }
-            } catch (error) {
-                Swal.fire('Error!', 'Unable to connect to the server.', 'error');
-            } finally {
-                button.disabled = false;
-                result.textContent = '';
-            }
+        const data = await response.json();
+        if (response.ok) {
+            Swal.fire('Success!', data.message, 'success');
+        } else {
+            Swal.fire('Error!', data.error || 'An error occurred.', 'error');
         }
+    } catch (error) {
+        Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
+    } finally {
+        button.disabled = false;
+        result.textContent = '';
+    }
+}
+
     </script>
 </body>
 </html>
