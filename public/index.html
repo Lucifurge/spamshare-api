@@ -1,158 +1,159 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ishaanshares</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Ishaanshares</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 
-    <style>
-        body {
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            font-family: Arial, sans-serif;
-            background-image: url('default-background.jpg');
-            background-size: cover;
-            transition: background 0.5s ease;
-        }
+        <style>
+            body {
+                background-color: rgba(0, 0, 0, 0.8);
+                color: #fff;
+                font-family: Arial, sans-serif;
+                background-image: url('default-background.jpg');
+                background-size: cover;
+                transition: background 0.5s ease;
+            }
 
-        .navbar {
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-        }
+            .navbar {
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+            }
 
-        .navbar-nav .nav-link {
-            color: #fff !important;
-        }
+            .navbar-nav .nav-link {
+                color: #fff !important;
+            }
 
-        .section {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            padding: 2rem;
-            border-radius: 10px;
-            margin-top: 2rem;
-        }
+            .section {
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(5px);
+                padding: 2rem;
+                border-radius: 10px;
+                margin-top: 2rem;
+            }
 
-        .progress {
-            height: 20px;
-        }
+            .progress {
+                height: 20px;
+            }
 
-        .loading-spinner {
-            display: none;
-        }
+            .loading-spinner {
+                display: none;
+            }
 
-        .hidden-file-input {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Ishaanshares</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#share">Share Post</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                    <li class="nav-item">
-                        <input type="file" id="backgroundUpload" class="hidden-file-input" accept="image/*" onchange="changeBackground(event)">
-                        <a class="nav-link" href="javascript:void(0)" onclick="document.getElementById('backgroundUpload').click()">Change Background</a>
-                    </li>
-                </ul>
+            .hidden-file-input {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Ishaanshares</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#share">Share Post</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                        <li class="nav-item">
+                            <input type="file" id="backgroundUpload" class="hidden-file-input" accept="image/*" onchange="changeBackground(event)">
+                            <a class="nav-link" href="javascript:void(0)" onclick="document.getElementById('backgroundUpload').click()">Change Background</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <header class="text-center py-5" style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);">
-        <h1>Ishaanshares</h1>
-        <p>Effortlessly share your posts with our automated tool!</p>
-    </header>
+        <header class="text-center py-5" style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);">
+            <h1>Ishaanshares</h1>
+            <p>Effortlessly share your posts with our automated tool!</p>
+        </header>
 
-    <section id="share" class="container py-5 section">
-        <h2 class="text-center" style="color: #f8f8f8;">Auto Share Your Posts</h2>
-        <form id="shareForm" class="p-4 shadow">
-            <div class="mb-3">
-                <label for="cookies" class="form-label">Facebook Cookie</label>
-                <input type="text" id="cookies" class="form-control" placeholder="Enter your Facebook cookie" required>
-            </div>
-            <div class="mb-3">
-                <label for="urls" class="form-label">Post URL</label>
-                <input type="url" id="urls" class="form-control" placeholder="Enter the post URL" required>
-            </div>
-            <div class="mb-3">
-                <label for="amounts" class="form-label">Number of Shares</label>
-                <input type="number" id="amounts" class="form-control" min="1" max="200000" placeholder="Enter the number of shares" required>
-            </div>
-            <div class="mb-3">
-                <label for="intervals" class="form-label">Interval (seconds)</label>
-                <input type="number" id="intervals" class="form-control" min="1" max="60" placeholder="Enter interval between shares" required>
-            </div>
-            <button type="submit" id="submit-button" class="btn btn-primary w-100">Start Sharing</button>
-        </form>
-        <div id="result" class="mt-3 text-center"></div>
-    </section>
+        <section id="share" class="container py-5 section">
+            <h2 class="text-center" style="color: #f8f8f8;">Auto Share Your Posts</h2>
+            <form id="shareForm" class="p-4 shadow">
+                <div class="mb-3">
+                    <label for="cookies" class="form-label">Facebook Cookie</label>
+                    <input type="text" id="cookies" class="form-control" placeholder="Enter your Facebook cookie" required>
+                </div>
+                <div class="mb-3">
+                    <label for="urls" class="form-label">Post URL</label>
+                    <input type="url" id="urls" class="form-control" placeholder="Enter the post URL" required>
+                </div>
+                <div class="mb-3">
+                    <label for="amounts" class="form-label">Number of Shares</label>
+                    <input type="number" id="amounts" class="form-control" min="1" max="200000" placeholder="Enter the number of shares" required>
+                </div>
+                <div class="mb-3">
+                    <label for="intervals" class="form-label">Interval (seconds)</label>
+                    <input type="number" id="intervals" class="form-control" min="1" max="60" placeholder="Enter interval between shares" required>
+                </div>
+                <button type="submit" id="submit-button" class="btn btn-primary w-100">Start Sharing</button>
+            </form>
+            <div id="result" class="mt-3 text-center"></div>
+        </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById('shareForm').addEventListener('submit', submitForm);
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.getElementById('shareForm').addEventListener('submit', submitForm);
 
-        function changeBackground(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.body.style.backgroundImage = `url(${e.target.result})`;
-            };
-            reader.readAsDataURL(file);
+            function changeBackground(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.body.style.backgroundImage = `url(${e.target.result})`;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async function submitForm(event) {
+        event.preventDefault();
+
+        const result = document.getElementById('result');
+        const button = document.getElementById('submit-button');
+        const cookies = document.getElementById('cookies').value.trim();
+        const url = document.getElementById('urls').value.trim();
+        const amount = document.getElementById('amounts').value.trim();
+        const interval = document.getElementById('intervals').value.trim();
+
+        if (!cookies || !url || !amount || !interval) {
+            result.textContent = 'Please fill up all form fields.';
+            return;
         }
 
-        async function submitForm(event) {
-    event.preventDefault();
+        button.disabled = true;
+        result.textContent = 'Processing...';
 
-    const result = document.getElementById('result');
-    const button = document.getElementById('submit-button');
-    const cookies = document.getElementById('cookies').value.trim();
-    const url = document.getElementById('urls').value.trim();
-    const amount = document.getElementById('amounts').value.trim();
-    const interval = document.getElementById('intervals').value.trim();
+        try {
+            const response = await fetch('/api/spam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fbLink: url,
+                    shareCount: parseInt(amount),
+                    interval: parseInt(interval),
+                    cookies: [{ name: 'cookie', value: cookies }]
+                })
+            });
 
-    if (!cookies || !url || !amount || !interval) {
-        result.textContent = 'Please fill up all form fields.';
-        return;
+            const data = await response.json();
+            if (response.ok) {
+                Swal.fire('Success!', data.message, 'success');
+            } else {
+                Swal.fire('Error!', data.error || 'An error occurred.', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
+        } finally {
+            button.disabled = false;
+            result.textContent = '';
+        }
     }
 
-    button.disabled = true;
-    result.textContent = 'Processing...';
 
-    try {
-        const response = await fetch('/api/spam', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                fbLink: url,
-                shareCount: parseInt(amount),
-                interval: parseInt(interval),
-                cookies: [{ name: 'cookie', value: cookies }]
-            })
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            Swal.fire('Success!', data.message, 'success');
-        } else {
-            Swal.fire('Error!', data.error || 'An error occurred.', 'error');
-        }
-    } catch (error) {
-        Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
-    } finally {
-        button.disabled = false;
-        result.textContent = '';
-    }
-}
-
-    </script>
-</body>
-</html>
+        </script>
+    </body>
+    </html>
