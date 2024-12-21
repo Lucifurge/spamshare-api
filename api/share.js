@@ -15,50 +15,64 @@ app.post("/share", async (req, res) => {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
+  let browser;
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       executablePath: await chrome.executablePath,
       args: chrome.args,
       headless: chrome.headless,
     });
     const page = await browser.newPage();
 
-    await page.setCookie(...cookies);
+    // Set cookies
+    try {
+      await page.setCookie(...cookies);
+    } catch (cookieError) {
+      console.error("Error setting cookies:", cookieError);
+      return res.status(400).json({ error: "Invalid cookies format" });
+    }
 
+    // Navigate to the post
     console.log("Navigating to Facebook...");
-    await page.goto(fbLink, { waitUntil: "domcontentloaded" }).catch(async (err) => {
-      console.error("Failed to load Facebook post:", err);
-      await browser.close();
+    try {
+      await page.goto(fbLink, { waitUntil: "domcontentloaded" });
+    } catch (navigationError) {
+      console.error("Failed to load Facebook post:", navigationError);
       return res.status(500).json({ error: "Failed to load Facebook post." });
-    });
+    }
 
     let sharedCount = 0;
     while (sharedCount < shareCount) {
       try {
+        // Share button logic
         await page.waitForSelector('div[data-testid="share_button"]', { timeout: 10000 });
         await page.click('div[data-testid="share_button"]');
 
+        // Confirm sharing
         await page.waitForSelector('button[data-testid="share_dialog_button"]', { timeout: 10000 });
         await page.click('button[data-testid="share_dialog_button"]');
 
         sharedCount++;
         console.log(`Shared ${sharedCount} time(s)`);
 
-        const randomizedInterval = interval + Math.floor(Math.random() * 2);
-        await page.waitForTimeout(randomizedInterval * 1000);
-      } catch (error) {
-        console.error("Error while sharing:", error);
-        await browser.close();
-        return res.status(500).json({ error: "Error during share operation." });
+        // Randomized delay
+        const randomizedInterval = interval * 1000 + Math.random() * 2000; // Random delay between interval + 0–2 seconds
+        await page.waitForTimeout(randomizedInterval);
+      } catch (shareError) {
+        console.error(`Error during share operation at count ${sharedCount}:`, shareError);
+        break; // Exit loop on failure to prevent infinite retries
       }
     }
 
     console.log("All shares completed!");
-    res.status(200).json({ message: `${shareCount} shares completed successfully!` });
-    await browser.close();
+    res.status(200).json({ message: `${sharedCount} shares completed successfully!` });
   } catch (error) {
     console.error("Error with the Puppeteer automation:", error);
     res.status(500).json({ error: "Failed to perform automated sharing." });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 });
 
