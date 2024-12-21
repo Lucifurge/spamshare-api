@@ -1,6 +1,6 @@
 {
   "name": "spamshare-api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "An API to automate Facebook post sharing using Puppeteer",
   "main": "api/spam.js",
   "scripts": {
