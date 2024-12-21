@@ -8,19 +8,35 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// CORS Handling for All Origins
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 app.post("/share", async (req, res) => {
   const { fbLink, shareCount, interval, cookies } = req.body;
 
+  // Check if required parameters are missing
   if (!fbLink || !shareCount || !interval || !cookies) {
     return res.status(400).json({ error: "Missing required parameters" });
   }
 
+  // Validate interval (should be between 1 and 60 seconds)
   if (interval < 1 || interval > 60) {
     return res.status(400).json({ error: "Interval must be between 1 and 60 seconds" });
   }
 
+  // Validate cookies format
+  if (!Array.isArray(cookies) || cookies.some(cookie => typeof cookie.name !== 'string' || typeof cookie.value !== 'string')) {
+    return res.status(400).json({ error: "Invalid cookies format" });
+  }
+
   let browser;
   try {
+    // Launch Puppeteer with AWS Lambda compatible configuration
     browser = await puppeteer.launch({
       executablePath: await chrome.executablePath,
       args: chrome.args,
@@ -36,7 +52,7 @@ app.post("/share", async (req, res) => {
       return res.status(400).json({ error: "Invalid cookies format" });
     }
 
-    // Navigate to the post
+    // Navigate to the Facebook post
     console.log("Navigating to Facebook...");
     try {
       await page.goto(fbLink, { waitUntil: "domcontentloaded" });
@@ -46,6 +62,7 @@ app.post("/share", async (req, res) => {
     }
 
     let sharedCount = 0;
+    // Loop to perform the share action multiple times
     while (sharedCount < shareCount) {
       try {
         // Share button logic
