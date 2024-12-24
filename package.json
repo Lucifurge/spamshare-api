@@ -1,10 +1,10 @@
 {
   "name": "spam-sharing-api",
   "version": "1.0.0",
-  "type": "module",
   "description": "Automates sharing posts on Facebook",
-  "main": "spam.js",
+  "main": "api/spam.js", 
   "scripts": {
+    "start": "vercel dev",  
     "deploy": "vercel deploy"
   },
   "dependencies": {
