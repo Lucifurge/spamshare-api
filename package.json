@@ -9,6 +9,7 @@
     "deploy": "vercel deploy"
   },
   "dependencies": {
+    "playwright": "^1.49.0",
     "cors": "^2.8.5"
   },
   "engines": {
