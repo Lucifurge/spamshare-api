@@ -1,7 +1,7 @@
 import { chromium } from 'playwright-core'; // Use playwright-core for serverless environments
 import cors from 'cors';
 
-// CORS middleware
+// CORS middleware to handle cross-origin requests
 const corsMiddleware = cors({
   origin: 'https://frontend-253d.onrender.com', // Allow only this frontend to make requests
   methods: ['GET', 'POST'],
@@ -151,21 +151,26 @@ export default async function handler(req, res) {
             }
           }
 
+          // Return success message with the number of shares completed
           return res.status(200).json({ message: `${sharedCount} shares completed successfully!` });
 
         } catch (error) {
           console.error("Error during sharing:", error);
+          // Catch error from Playwright execution and respond with an error
           return res.status(500).json({ error: "Failed to perform automated sharing." });
         } finally {
+          // Ensure the browser instance is closed to avoid resource leakage
           if (browser) {
             await browser.close();
           }
         }
       } catch (error) {
         console.error("General error in POST request:", error);
+        // General error handler for failed request
         return res.status(500).json({ error: "Failed to process your request." });
       }
     } else {
+      // Handle unsupported HTTP methods
       return res.status(405).json({ error: "Method Not Allowed" });
     }
   });
