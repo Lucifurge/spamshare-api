@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-core'; // Use playwright-core for serverless environments
 import cors from 'cors';
 
 // CORS middleware
@@ -43,9 +43,15 @@ export default async function handler(req, res) {
 
         let browser;
         try {
+          // Launch Playwright with the necessary Chromium options for serverless
           browser = await chromium.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: true, // ensure headless mode
+            args: [
+              '--no-sandbox', 
+              '--disable-setuid-sandbox',
+              '--disable-gpu', // added for serverless
+              '--single-process', // added for serverless
+            ],
           });
 
           const page = await browser.newPage();
