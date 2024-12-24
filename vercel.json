@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/spam.js": {
-      "runtime": "now-node@22x"
+      "runtime": "now-node@22.x"
     }
   },
   "routes": [
