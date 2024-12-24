@@ -1,4 +1,20 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chrome = require("chrome-aws-lambda");
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log('CORS and JSON middleware applied');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 
 app.post("/api/spam", async (req, res) => {
   console.log('POST /api/spam called');
@@ -24,7 +40,9 @@ app.post("/api/spam", async (req, res) => {
   try {
     console.log("Launching Puppeteer...");
     browser = await puppeteer.launch({
-      headless: true, // Ensure headless mode is enabled for serverless functions
+      executablePath: await chrome.executablePath,
+      args: chrome.args,
+      headless: chrome.headless,
     });
     const page = await browser.newPage();
     console.log("Puppeteer launched");
@@ -74,3 +92,5 @@ app.post("/api/spam", async (req, res) => {
     }
   }
 });
+
+module.exports = app;
