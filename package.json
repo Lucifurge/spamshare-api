@@ -1,7 +1,7 @@
 {
   "name": "spam-sharing-api",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
   "description": "Automates sharing posts on Facebook",
   "main": "spam.js",
   "scripts": {
