@@ -1,19 +1,15 @@
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
-import cors from 'cors';
+import { chromium } from 'playwright';
 
-// CORS middleware configuration
-const corsOptions = {
-  origin: 'https://frontend-253d.onrender.com', // Allow only your frontend origin (for production)
+// CORS middleware
+const cors = require('cors')({
+  origin: '*',
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-};
-
-const corsMiddleware = cors(corsOptions);
+  allowedHeaders: ['Content-Type']
+});
 
 export default async function handler(req, res) {
   // Apply CORS to the handler
-  corsMiddleware(req, res, async () => {
+  cors(req, res, async () => {
     // Health Check for server status
     if (req.method === "GET" && req.url === "/status") {
       return res.status(200).json({ message: "Server Running" });
@@ -36,38 +32,33 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "Interval must be between 1 and 60 seconds" });
         }
 
-        // Enhanced cookie validation
         if (!Array.isArray(cookies) || cookies.some(cookie => typeof cookie.name !== 'string' || typeof cookie.value !== 'string')) {
           console.error("Invalid cookies format:", cookies);
-          return res.status(400).json({ error: "Cookies must be an array of objects with 'name' and 'value' as strings" });
+          return res.status(400).json({ error: "Invalid cookies format" });
         }
 
         let browser;
         try {
-          // Launch Puppeteer with Chromium settings
-          console.log("Launching Puppeteer...");
-          browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-            ignoreHTTPSErrors: true,
+          console.log("Launching Playwright...");
+          browser = await chromium.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
           });
 
           const page = await browser.newPage();
-          console.log("Puppeteer launched");
+          console.log("Playwright launched");
 
           // Set cookies for Facebook
           console.log("Setting cookies...");
           try {
-            await page.setCookie(...cookies.map(cookie => ({
+            await page.context().addCookies(cookies.map(cookie => ({
               name: cookie.name,
               value: cookie.value,
               domain: 'facebook.com',
             })));
           } catch (cookieError) {
             console.error("Error setting cookies:", cookieError);
-            return res.status(400).json({ error: "Invalid cookies format or error setting cookies" });
+            return res.status(400).json({ error: "Invalid cookies format" });
           }
 
           console.log("Navigating to Facebook:", fbLink);
@@ -75,7 +66,7 @@ export default async function handler(req, res) {
             await page.goto(fbLink, { waitUntil: "domcontentloaded" });
           } catch (navigationError) {
             console.error("Failed to load Facebook post:", navigationError);
-            return res.status(500).json({ error: "Failed to load Facebook post" });
+            return res.status(500).json({ error: "Failed to load Facebook post." });
           }
 
           // Share post a number of times
@@ -108,7 +99,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error("Error in POST request:", error);
-        return res.status(500).json({ error: "Failed to perform automated sharing" });
+        return res.status(500).json({ error: "Failed to perform automated sharing." });
       }
     } else {
       return res.status(405).json({ error: "Method Not Allowed" });
