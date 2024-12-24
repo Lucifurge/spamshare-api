@@ -13,7 +13,6 @@ const corsMiddleware = cors({
 export default async function handler(req, res) {
   // Apply CORS middleware
   corsMiddleware(req, res, async () => {
-    // Handle GET request for server status
     if (req.method === "GET") {
       return res.status(200).send(`
         <!DOCTYPE html>
@@ -43,17 +42,14 @@ export default async function handler(req, res) {
       `);
     }
 
-    // Handle POST request for Facebook spam share
     if (req.method === "POST") {
       try {
         const { fbLink, shareCount, interval, cookies } = req.body;
 
-        // Validate required fields
         if (!fbLink || !shareCount || !interval || !Array.isArray(cookies)) {
           return res.status(400).json({ error: "Missing or invalid parameters" });
         }
 
-        // Validate interval and share count limits
         if (interval < 0.5 || interval > 60) {
           return res.status(400).json({ error: "Interval must be between 0.5 and 60 seconds" });
         }
@@ -61,7 +57,6 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "Share count cannot exceed 100,000" });
         }
 
-        // Validate cookies in C3C format
         const validCookies = cookies.every(cookie =>
           cookie.key && cookie.value && cookie.domain && cookie.path
         );
@@ -79,15 +74,16 @@ export default async function handler(req, res) {
 
           const page = await browser.newPage();
 
+          // Map cookies to the format required by Playwright
+          const formattedCookies = cookies.map(cookie => ({
+            name: cookie.key,
+            value: cookie.value,
+            domain: cookie.domain,
+            path: cookie.path,
+          }));
+
           // Set cookies on Facebook
-          await page.context().addCookies(
-            cookies.map(cookie => ({
-              name: cookie.key,
-              value: cookie.value,
-              domain: cookie.domain,
-              path: cookie.path,
-            }))
-          );
+          await page.context().addCookies(formattedCookies);
 
           // Navigate to Facebook post
           await page.goto(fbLink, { waitUntil: "domcontentloaded" });
