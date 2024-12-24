@@ -1,18 +1,15 @@
 {
   "name": "your-project-name",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "type": "module",  
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "puppeteer-core": "^19.0.0",
-    "chrome-aws-lambda": "^10.0.0"
-  },
-  "devDependencies": {},
   "engines": {
     "node": "22.x"
+  },
+  "dependencies": {
+    "puppeteer-core": "17.1.0",
+    "@sparticuz/chrome-aws-lambda": "~17.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node spam.js"
   }
 }
