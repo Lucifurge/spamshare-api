@@ -20,6 +20,6 @@
     "serverless": "^3.27.0"
   },
   "engines": {
-    "node": "16.x"
+    "node": "18x"
   }
 }
