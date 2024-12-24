@@ -5,7 +5,6 @@
   "description": "Automates sharing posts on Facebook",
   "main": "spam.js",
   "scripts": {
-    "start": "node spam.js",
     "deploy": "vercel deploy"
   },
   "dependencies": {
