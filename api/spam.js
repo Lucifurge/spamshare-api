@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import chrome from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 import cors from 'cors';
 
 // CORS middleware configuration
@@ -44,11 +44,14 @@ export default async function handler(req, res) {
 
         let browser;
         try {
+          // Launch Puppeteer with Chromium settings
           console.log("Launching Puppeteer...");
           browser = await puppeteer.launch({
-            executablePath: await chrome.executablePath,
-            args: chrome.args,
-            headless: chrome.headless,
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
           });
 
           const page = await browser.newPage();
