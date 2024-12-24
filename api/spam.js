@@ -1,19 +1,19 @@
-import { chromium } from 'playwright-core'; // Use playwright-core for serverless environments
+import { chromium } from 'playwright-core';
 import cors from 'cors';
 
-// CORS middleware to handle cross-origin requests
+// CORS middleware
 const corsMiddleware = cors({
-  origin: 'https://frontend-253d.onrender.com', // Allow only this frontend to make requests
+  origin: 'https://frontend-253d.onrender.com', // Allow only this frontend
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
-  preflightContinue: false, // Don't need to manually handle OPTIONS request
-  optionsSuccessStatus: 200, // For legacy browsers
+  preflightContinue: false,
+  optionsSuccessStatus: 200,
 });
 
 export default async function handler(req, res) {
   // Apply CORS middleware
   corsMiddleware(req, res, async () => {
-    if (req.method === "GET") {
+    if (req.method === 'GET') {
       return res.status(200).send(`
         <!DOCTYPE html>
         <html lang="en">
@@ -42,28 +42,30 @@ export default async function handler(req, res) {
       `);
     }
 
-    if (req.method === "POST") {
+    if (req.method === 'POST') {
       try {
         const { fbLink, shareCount, interval, cookies } = req.body;
 
+        // Validate required fields
         if (!fbLink || !shareCount || !interval || !Array.isArray(cookies)) {
-          return res.status(400).json({ error: "Missing or invalid parameters" });
+          return res.status(400).json({ error: 'Missing or invalid parameters' });
         }
 
         if (interval < 0.5 || interval > 60) {
-          return res.status(400).json({ error: "Interval must be between 0.5 and 60 seconds" });
+          return res.status(400).json({ error: 'Interval must be between 0.5 and 60 seconds' });
         }
+
         if (shareCount > 100000) {
-          return res.status(400).json({ error: "Share count cannot exceed 100,000" });
+          return res.status(400).json({ error: 'Share count cannot exceed 100,000' });
         }
 
-        const validCookies = cookies.every(cookie =>
-          cookie.key && cookie.value && cookie.domain && cookie.path
-        );
-
-        if (!validCookies) {
-          return res.status(400).json({ error: "Invalid cookie format" });
-        }
+        // Map cookies into Playwright-compatible format
+        const formattedCookies = cookies.map(({ key, value, domain, path }) => ({
+          name: key,
+          value,
+          domain,
+          path,
+        }));
 
         let browser;
         try {
@@ -74,19 +76,11 @@ export default async function handler(req, res) {
 
           const page = await browser.newPage();
 
-          // Map cookies to the format required by Playwright
-          const formattedCookies = cookies.map(cookie => ({
-            name: cookie.key,
-            value: cookie.value,
-            domain: cookie.domain,
-            path: cookie.path,
-          }));
-
-          // Set cookies on Facebook
+          // Set cookies
           await page.context().addCookies(formattedCookies);
 
           // Navigate to Facebook post
-          await page.goto(fbLink, { waitUntil: "domcontentloaded" });
+          await page.goto(fbLink, { waitUntil: 'domcontentloaded' });
 
           // Share the post
           let sharedCount = 0;
@@ -109,16 +103,16 @@ export default async function handler(req, res) {
           return res.status(200).json({ message: `${sharedCount} shares completed successfully!` });
         } catch (err) {
           console.error('Playwright error:', err);
-          return res.status(500).json({ error: "Automation failed" });
+          return res.status(500).json({ error: 'Automation failed' });
         } finally {
           if (browser) await browser.close();
         }
       } catch (err) {
         console.error('General error:', err);
-        return res.status(500).json({ error: "Server error" });
+        return res.status(500).json({ error: 'Server error' });
       }
     } else {
-      return res.status(405).json({ error: "Method Not Allowed" });
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
   });
 }
