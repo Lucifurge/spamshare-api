@@ -5,9 +5,11 @@ const cors = require("cors");
 
 const app = express();
 
+// Middleware to handle CORS and JSON
 app.use(cors());
 app.use(express.json());
 
+// CORS headers middleware
 app.use((req, res, next) => {
   console.log('CORS and JSON middleware applied');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,11 +18,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// POST endpoint for the spam functionality
 app.post("/api/spam", async (req, res) => {
   console.log('POST /api/spam called');
   const { fbLink, shareCount, interval, cookies } = req.body;
   console.log("Request body received:", req.body);
 
+  // Validating the input
   if (!fbLink || !shareCount || !interval || !cookies) {
     console.error("Missing required parameters");
     return res.status(400).json({ error: "Missing required parameters" });
@@ -47,6 +51,7 @@ app.post("/api/spam", async (req, res) => {
     const page = await browser.newPage();
     console.log("Puppeteer launched");
 
+    // Setting cookies
     console.log("Setting cookies...");
     try {
       await page.setCookie(...cookies);
@@ -55,6 +60,7 @@ app.post("/api/spam", async (req, res) => {
       return res.status(400).json({ error: "Invalid cookies format" });
     }
 
+    // Navigating to Facebook link
     console.log("Navigating to Facebook:", fbLink);
     try {
       await page.goto(fbLink, { waitUntil: "domcontentloaded" });
@@ -93,4 +99,4 @@ app.post("/api/spam", async (req, res) => {
   }
 });
 
-module.exports = app;
+module.exports = app; 
