@@ -1,16 +1,25 @@
 {
-  "name": "your-project-name",
+  "name": "spamshare-api",
   "version": "1.0.0",
-  "engines": {
-    "type": "module",
-    "node": "22.x"
+  "description": "A serverless project using Puppeteer and @sparticuz/chromium for automated sharing tasks",
+  "license": "ISC",
+  "author": {
+    "name": "Luke"
+  },
+  "main": "index.js",
+  "scripts": {
+    "deploy": "vercel deploy",
+    "test": "vercel dev"
   },
   "dependencies": {
-    "puppeteer-core": "17.1.0",
-    "@sparticuz/chrome-aws-lambda": "~17.1.1"
+    "puppeteer-core": "19.6.3",
+    "@sparticuz/chromium": "110.0.0",
+    "cors": "^2.8.5"
   },
-  "devDependencies": {},
-  "scripts": {
-    "start": "node spam.js"
+  "devDependencies": {
+    "serverless": "^3.27.0"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
