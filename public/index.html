@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -108,7 +107,6 @@
             };
             reader.readAsDataURL(file);
         }
-
         async function submitForm(event) {
     event.preventDefault();
 
@@ -119,6 +117,9 @@
     const amount = document.getElementById('amounts').value.trim();
     const interval = document.getElementById('intervals').value.trim();
 
+    // Log the form data to ensure they're correct
+    console.log('Form Data:', { cookies, url, amount, interval });
+
     if (!cookies || !url || !amount || !interval) {
         result.textContent = 'Please fill up all form fields.';
         return;
@@ -128,7 +129,10 @@
     result.textContent = 'Processing...';
 
     try {
-        const response = await fetch('/api/spam', {
+        console.log('Sending request to backend...');
+
+        // Send the request
+        const response = await fetch('https://spamshare-api-git-main-lucifurges-projects.vercel.app/api/spam', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -139,20 +143,23 @@
             })
         });
 
+        console.log('Response received:', response);
         const data = await response.json();
+
         if (response.ok) {
             Swal.fire('Success!', data.message, 'success');
         } else {
+            console.log('Error data:', data);
             Swal.fire('Error!', data.error || 'An error occurred.', 'error');
         }
     } catch (error) {
+        console.error('Request failed:', error);
         Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
     } finally {
         button.disabled = false;
         result.textContent = '';
     }
-}
-
+        }
     </script>
 </body>
 </html>
