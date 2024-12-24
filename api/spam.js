@@ -3,9 +3,11 @@ import cors from 'cors';
 
 // CORS middleware
 const corsMiddleware = cors({
-  origin: '*', // Allow all origins (you can restrict this if needed)
+  origin: 'https://frontend-253d.onrender.com', // Allow only this frontend to make requests
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
+  preflightContinue: false,  // Don't need to manually handle OPTIONS request
+  optionsSuccessStatus: 200, // For legacy browsers
 });
 
 export default async function handler(req, res) {
