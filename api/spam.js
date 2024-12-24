@@ -39,13 +39,13 @@ export default async function handler(req, res) {
               max-width: 600px;
               padding: 20px;
               border-radius: 10px;
-              background-color: #f7f7f7;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              background-color:rgb(0, 0, 0);
+              box-shadow: 0 2px 10px rgba(7, 102, 142, 0.1);
               text-align: center;
             }
             h1 {
               font-size: 2.5rem;
-              color: #4a90e2;
+              color:rgb(229, 229, 229);
               margin-bottom: 20px;
             }
             p {
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
             .btn {
               display: inline-block;
               padding: 10px 20px;
-              background-color: #4a90e2;
+              background-color:rgb(0, 0, 0);
               color: white;
               text-decoration: none;
               font-weight: bold;
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
               transition: background-color 0.3s;
             }
             .btn:hover {
-              background-color: #357ABD;
+              background-color:rgb(133, 135, 137);
             }
           </style>
         </head>
