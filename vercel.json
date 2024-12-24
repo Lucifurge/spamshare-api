@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/spam.js",
+      "use": "@vercel/node"
+    }
+  ]
+}
