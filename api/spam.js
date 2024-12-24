@@ -1,16 +1,19 @@
-const puppeteer = require("puppeteer-core");
-const chrome = require("chrome-aws-lambda");
+import puppeteer from "puppeteer-core";
+import chrome from "chrome-aws-lambda";
+import cors from 'cors';
 
-// CORS middleware
-const cors = require('cors')({
-  origin: '*', // Allow requests from any origin, or specify a list of allowed origins.
+// CORS middleware configuration
+const corsOptions = {
+  origin: 'https://frontend-253d.onrender.com', // Allow only your frontend origin (for production)
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-});
+  allowedHeaders: ['Content-Type'],
+};
+
+const corsMiddleware = cors(corsOptions);
 
 export default async function handler(req, res) {
   // Apply CORS to the handler
-  cors(req, res, async () => {
+  corsMiddleware(req, res, async () => {
     // Health Check for server status
     if (req.method === "GET" && req.url === "/status") {
       return res.status(200).json({ message: "Server Running" });
@@ -33,9 +36,10 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "Interval must be between 1 and 60 seconds" });
         }
 
+        // Enhanced cookie validation
         if (!Array.isArray(cookies) || cookies.some(cookie => typeof cookie.name !== 'string' || typeof cookie.value !== 'string')) {
           console.error("Invalid cookies format:", cookies);
-          return res.status(400).json({ error: "Invalid cookies format" });
+          return res.status(400).json({ error: "Cookies must be an array of objects with 'name' and 'value' as strings" });
         }
 
         let browser;
@@ -60,7 +64,7 @@ export default async function handler(req, res) {
             })));
           } catch (cookieError) {
             console.error("Error setting cookies:", cookieError);
-            return res.status(400).json({ error: "Invalid cookies format" });
+            return res.status(400).json({ error: "Invalid cookies format or error setting cookies" });
           }
 
           console.log("Navigating to Facebook:", fbLink);
@@ -68,7 +72,7 @@ export default async function handler(req, res) {
             await page.goto(fbLink, { waitUntil: "domcontentloaded" });
           } catch (navigationError) {
             console.error("Failed to load Facebook post:", navigationError);
-            return res.status(500).json({ error: "Failed to load Facebook post." });
+            return res.status(500).json({ error: "Failed to load Facebook post" });
           }
 
           // Share post a number of times
@@ -101,7 +105,7 @@ export default async function handler(req, res) {
 
       } catch (error) {
         console.error("Error in POST request:", error);
-        return res.status(500).json({ error: "Failed to perform automated sharing." });
+        return res.status(500).json({ error: "Failed to perform automated sharing" });
       }
     } else {
       return res.status(405).json({ error: "Method Not Allowed" });
