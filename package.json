@@ -1,23 +1,15 @@
 {
-  "name": "spamshare-api",
+  "name": "spam-sharing-api",
   "version": "1.0.0",
-  "description": "A serverless project using Puppeteer and @sparticuz/chromium for automated sharing tasks",
-  "license": "ISC",
-  "author": {
-    "name": "Luke"
-  },
-  "main": "index.js",
+  "description": "Automates sharing posts on Facebook",
+  "main": "spam.js",
   "scripts": {
-    "deploy": "vercel deploy",
-    "test": "vercel dev"
+    "start": "node spam.js",
+    "deploy": "vercel deploy"
   },
   "dependencies": {
-    "puppeteer-core": "19.6.3",
-    "@sparticuz/chromium": "110.0.0",
+    "playwright": "^1.31.0",
     "cors": "^2.8.5"
-  },
-  "devDependencies": {
-    "serverless": "^3.27.0"
   },
   "engines": {
     "node": "22.x"
