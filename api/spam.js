@@ -15,7 +15,69 @@ export default async function handler(req, res) {
   corsMiddleware(req, res, async () => {
     // Health Check for server status
     if (req.method === "GET") {
-      return res.status(200).json({ message: 'Server is up and running!' });
+      // Return a styled HTML page with a Vercel-like design
+      return res.status(200).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Server is Running</title>
+          <style>
+            body {
+              font-family: 'Inter', sans-serif;
+              background-color: #fff;
+              color: #333;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              text-align: center;
+            }
+            .container {
+              max-width: 600px;
+              padding: 20px;
+              border-radius: 10px;
+              background-color: #f7f7f7;
+              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+              text-align: center;
+            }
+            h1 {
+              font-size: 2.5rem;
+              color: #4a90e2;
+              margin-bottom: 20px;
+            }
+            p {
+              font-size: 1.1rem;
+              color: #777;
+              margin-bottom: 20px;
+            }
+            .btn {
+              display: inline-block;
+              padding: 10px 20px;
+              background-color: #4a90e2;
+              color: white;
+              text-decoration: none;
+              font-weight: bold;
+              border-radius: 5px;
+              cursor: pointer;
+              transition: background-color 0.3s;
+            }
+            .btn:hover {
+              background-color: #357ABD;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Server is Up and Running!</h1>
+            <p>Your server is currently active and processing requests.</p>
+            <a href="/" class="btn">Go to Dashboard</a>
+          </div>
+        </body>
+        </html>
+      `);
     }
 
     // Handle POST request to share a Facebook post
