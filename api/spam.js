@@ -13,35 +13,6 @@ const corsMiddleware = cors({
 export default async function handler(req, res) {
   // Apply CORS middleware
   corsMiddleware(req, res, async () => {
-    if (req.method === 'GET') {
-      return res.status(200).send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Server is Running</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              margin: 0;
-              background: #f4f4f4;
-              color: #333;
-              text-align: center;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Server is Up and Running!</h1>
-        </body>
-        </html>
-      `);
-    }
-
     if (req.method === 'POST') {
       try {
         const { fbLink, shareCount, interval, cookies } = req.body;
@@ -55,16 +26,16 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Interval must be between 0.5 and 60 seconds' });
         }
 
-        if (shareCount > 100000) {
-          return res.status(400).json({ error: 'Share count cannot exceed 100,000' });
+        if (shareCount > 200000) {
+          return res.status(400).json({ error: 'Share count cannot exceed 200,000' });
         }
 
-        // Map cookies into Playwright-compatible format
+        // Map input cookies to Playwright-compatible format
         const formattedCookies = cookies.map(({ key, value, domain, path }) => ({
           name: key,
           value,
-          domain,
-          path,
+          domain: domain || 'facebook.com', // Default to 'facebook.com' if domain is not provided
+          path: path || '/', // Default to '/' if path is not provided
         }));
 
         let browser;
@@ -76,13 +47,13 @@ export default async function handler(req, res) {
 
           const page = await browser.newPage();
 
-          // Set cookies
+          // Set cookies in the browser
           await page.context().addCookies(formattedCookies);
 
-          // Navigate to Facebook post
+          // Navigate to the Facebook post
           await page.goto(fbLink, { waitUntil: 'domcontentloaded' });
 
-          // Share the post
+          // Automate the sharing process
           let sharedCount = 0;
           while (sharedCount < shareCount) {
             try {
@@ -93,6 +64,7 @@ export default async function handler(req, res) {
               await page.click('button[data-testid="share_dialog_button"]');
 
               sharedCount++;
+              console.log(`Successfully shared ${sharedCount}/${shareCount} times`);
               await page.waitForTimeout(interval * 1000);
             } catch (err) {
               console.error('Error during sharing:', err);
