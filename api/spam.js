@@ -33,6 +33,9 @@ export default async function handler(req, res) {
               color: #333;
               text-align: center;
             }
+            h1 {
+              font-size: 24px;
+            }
           </style>
         </head>
         <body>
@@ -79,18 +82,20 @@ export default async function handler(req, res) {
           // Set cookies
           await page.context().addCookies(formattedCookies);
 
-          // Navigate to Facebook post
+          // Navigate to Facebook post link
           await page.goto(fbLink, { waitUntil: 'domcontentloaded' });
 
           // Share the post
           let sharedCount = 0;
           while (sharedCount < shareCount) {
             try {
+              // Wait for the share button and click it
               await page.waitForSelector('div[data-testid="share_button"]', { timeout: 10000 });
               await page.click('div[data-testid="share_button"]');
 
-              await page.waitForSelector('button[data-testid="share_dialog_button"]', { timeout: 10000 });
-              await page.click('button[data-testid="share_dialog_button"]');
+              // Wait for the share confirmation button and click it to complete the share
+              await page.waitForSelector('button[data-testid="share_dialog_confirm_button"]', { timeout: 10000 });
+              await page.click('button[data-testid="share_dialog_confirm_button"]');
 
               sharedCount++;
               await page.waitForTimeout(interval * 1000);
